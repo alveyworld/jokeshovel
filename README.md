@@ -1,2 +1,2 @@
 # jokeshovel
-digging jokes
+for digging jokes
