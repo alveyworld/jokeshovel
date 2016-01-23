@@ -81,8 +81,7 @@ ul {
 li {
   position: relative;
   list-style: none;
-  padding: 15px;
-  border-bottom: #eee solid 1px;
+  padding: 1px;
 }
 
 li .text {
@@ -123,4 +122,9 @@ header .hide-completed {
   .new-topic input {
     padding-bottom: 5px;
   }
+}
+
+.instructions {
+  float: right;
+
 }

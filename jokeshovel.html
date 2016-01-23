@@ -4,48 +4,84 @@
  
 <body>
   <div class="container">
-    <header>
-      <h1>Topic List</h1>
+    
+    <div class="ui grid">
+      <div class="six wide column">
 
-      <label class="hide-completed">
-        <input type="checkbox" checked="{{hideCompleted}}" />
-        Hide Completed Topics
-      </label>
+        <div class="ui vertical steps">
+          <div class="completed step">
+            <div class="content">
+              <div class="title">Shipping</div>
+              <div class="description">Choose your shipping options</div>
+            </div>
+          </div>
+          <div class="completed step">
+            <div class="content">
+              <div class="title">Billing</div>
+              <div class="description">Enter billing information</div>
+            </div>
+          </div>
+          <div class="active step">
+            <div class="content">
+              <div class="title">Confirm Order</div>
+              <div class="description">Verify order details</div>
+            </div>
+          </div>
+        </div>
 
-      {{> loginButtons}}
+      </div>
 
-      {{#if currentUser}}
-        <form class="new-topic">
-          <input type="text" name="text" placeholder="Type to add new topics" />
-        </form>
-      {{/if}}
+      <div class="ten wide column">
+          <div class="ui attached yellow message">
+            <div class="header">
+              Topic list
+            </div>
+            <p>List topic where you feel something is wrong</p>
+          </div>
+        <header>
+          
 
-    </header>
- 
-    <ul>
-      {{#each topics}}
-        {{> topic}}
-      {{/each}}
-    </ul>
+          {{> loginButtons}}
+
+          {{#if currentUser}}
+            <form class="new-topic">
+              <input type="text" name="text" placeholder="Type to add new topics" />
+            </form>
+          {{/if}}
+
+        </header>
+     
+        <ul>
+          {{#each topics}}
+            {{> topic}}
+          {{/each}}
+        </ul>
+      </div>
+    </div>
+    
   </div>
+
+    
 </body>
  
 <template name="topic">
   <li class="{{#if checked}}checked{{/if}} {{#if private}}private{{/if}}">
-    <button class="delete">&times;</button>
- 
-    <input type="checkbox" checked="{{checked}}" class="toggle-checked" />
+    <div class="ui yellow segment">
+      <button class="delete">&times;</button>
+   
+      <input type="checkbox" checked="{{checked}}" class="toggle-checked" />
 
-    {{#if isOwner}}
-      <button class="toggle-private">
-        {{#if private}}
-          Private
-        {{else}}
-          Public
-        {{/if}}
-      </button>
-    {{/if}}
- 
-    <span class="text"><strong>{{username}}</strong> - {{text}}</span>
+      {{#if isOwner}}
+        <button class="toggle-private">
+          {{#if private}}
+            Private
+          {{else}}
+            Public
+          {{/if}}
+        </button>
+      {{/if}}
+   
+      <span class="text"><strong>{{username}}</strong> - {{text}}</span>
+    </div>
   </li>
 </template>
