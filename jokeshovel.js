@@ -1,21 +1,32 @@
 if (Meteor.isClient) {
   // This code only runs on the client
   Template.body.helpers({
-    tasks: [
-      { text: "This is task 1" },
-      { text: "This is task 2" },
-      { text: "This is task 3" }
+    topics: [
+      { text: "This is topic 1" },
+      { text: "This is topic 2" },
+      { text: "This is topic 3" }
     ]
   });
 }
 
-Tasks = new Mongo.Collection("tasks");
+Topics = new Mongo.Collection("topics");
+Association_Lists = new Mongo.Collection("association_lists")
+Setup_Premises = new Mongo.Collection("setup_premises")
+Punch_Premises = new Mongo.Collection("punch_premises")
+Assumptions = new Mongo.Collection("assumptions")
+Connections = new Mongo.Collection("connections")
+Reinterpretations = new Mongo.Collection("reinterpretations")
+Jokes = new Mongo.Collection("jokes")
+
+
+
+
 
 if (Meteor.isServer) {
   // This code only runs on the server
-  // Only publish tasks that are public or belong to the current user
-  Meteor.publish("tasks", function () {
-    return Tasks.find({
+  // Only publish topics that are public or belong to the current user
+  Meteor.publish("topics", function () {
+    return Topics.find({
       $or: [
         { private: {$ne: true} },
         { owner: this.userId }
@@ -26,37 +37,37 @@ if (Meteor.isServer) {
  
 if (Meteor.isClient) {
   // This code only runs on the client
-  Meteor.subscribe("tasks");  
+  Meteor.subscribe("topics");  
 
   Template.body.helpers({
-    tasks: function () {
-      // Show newest tasks at the top
+    topics: function () {
+      // Show newest topics at the top
       if (Session.get("hideCompleted")) {
-        // If hide completed is checked, filter tasks
-        return Tasks.find({checked: {$ne: true}}, {sort: {createdAt: -1}});
+        // If hide completed is checked, filter topics
+        return Topics.find({checked: {$ne: true}}, {sort: {createdAt: -1}});
       } else {
-        // Otherwise, return all of the tasks
-        return Tasks.find({}, {sort: {createdAt: -1}});
+        // Otherwise, return all of the topics
+        return Topics.find({}, {sort: {createdAt: -1}});
       }
     },
     hideCompleted: function () {
       return Session.get("hideCompleted");
       },
     incompleteCount: function () {
-      return Tasks.find({checked: {$ne: true}}).count();
+      return Topics.find({checked: {$ne: true}}).count();
     }
   });
 
   Template.body.events({
-    "submit .new-task": function (event) {
+    "submit .new-topic": function (event) {
       // Prevent default browser form submit
       event.preventDefault();
  
       // Get value from form element
       var text = event.target.text.value;
  
-      // Insert a task into the collection
-      Meteor.call("addTask", text);
+      // Insert a topic into the collection
+      Meteor.call("addTopic", text);
  
       // Clear form
       event.target.text.value = "";
@@ -66,19 +77,19 @@ if (Meteor.isClient) {
     }
   });
 
-  Template.task.helpers({
+  Template.topic.helpers({
     isOwner: function () {
       return this.owner === Meteor.userId();
     }
   });
 
-  Template.task.events({
+  Template.topic.events({
     "click .toggle-checked": function () {
       // Set the checked property to the opposite of its current value
       Meteor.call("setChecked", this._id, ! this.checked);
     },
     "click .delete": function () {
-      Meteor.call("deleteTask", this._id);
+      Meteor.call("deleteTopic", this._id);
     },
     "click .toggle-private": function () {
       Meteor.call("setPrivate", this._id, ! this.private);
@@ -91,46 +102,46 @@ if (Meteor.isClient) {
 }
 
 Meteor.methods({
-  addTask: function (text) {
-    // Make sure the user is logged in before inserting a task
+  addTopic: function (text) {
+    // Make sure the user is logged in before inserting a topic
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorized");
     }
  
-    Tasks.insert({
+    Topics.insert({
       text: text,
       createdAt: new Date(),
       owner: Meteor.userId(),
       username: Meteor.user().username
     });
   },
-  deleteTask: function (taskId) {
-    var task = Tasks.findOne(taskId);
-    if (task.private && task.owner !== Meteor.userId()) {
-      // If the task is private, make sure only the owner can delete it
+  deleteTopic: function (topicId) {
+    var topic = Topics.findOne(topicId);
+    if (topic.private && topic.owner !== Meteor.userId()) {
+      // If the topic is private, make sure only the owner can delete it
       throw new Meteor.Error("not-authorized");
     }
 
-    Tasks.remove(taskId);
+    Topics.remove(topicId);
   },
-  setChecked: function (taskId, setChecked) {
-    var task = Tasks.findOne(taskId);
-    if (task.private && task.owner !== Meteor.userId()) {
-      // If the task is private, make sure only the owner can check it off
+  setChecked: function (topicId, setChecked) {
+    var topic = Topics.findOne(topicId);
+    if (topic.private && topic.owner !== Meteor.userId()) {
+      // If the topic is private, make sure only the owner can check it off
       throw new Meteor.Error("not-authorized");
     }
     
-    Tasks.update(taskId, { $set: { checked: setChecked} });
+    Topics.update(topicId, { $set: { checked: setChecked} });
   },
-  setPrivate: function (taskId, setToPrivate) {
-    var task = Tasks.findOne(taskId);
+  setPrivate: function (topicId, setToPrivate) {
+    var topic = Topics.findOne(topicId);
  
-    // Make sure only the task owner can make a task private
-    if (task.owner !== Meteor.userId()) {
+    // Make sure only the topic owner can make a topic private
+    if (topic.owner !== Meteor.userId()) {
       throw new Meteor.Error("not-authorized");
     }
  
-    Tasks.update(taskId, { $set: { private: setToPrivate } });
+    Topics.update(topicId, { $set: { private: setToPrivate } });
   }
 });
 

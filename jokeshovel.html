@@ -1,38 +1,36 @@
 <head>
-  <title>Todo List</title>
+  <title>Topics</title>
 </head>
  
 <body>
   <div class="container">
     <header>
-      <h1>Todo List</h1>
-
-      <h1>Todo List ({{incompleteCount}})</h1>
+      <h1>Topic List</h1>
 
       <label class="hide-completed">
         <input type="checkbox" checked="{{hideCompleted}}" />
-        Hide Completed Tasks
+        Hide Completed Topics
       </label>
 
       {{> loginButtons}}
 
       {{#if currentUser}}
-        <form class="new-task">
-          <input type="text" name="text" placeholder="Type to add new tasks" />
+        <form class="new-topic">
+          <input type="text" name="text" placeholder="Type to add new topics" />
         </form>
       {{/if}}
 
     </header>
  
     <ul>
-      {{#each tasks}}
-        {{> task}}
+      {{#each topics}}
+        {{> topic}}
       {{/each}}
     </ul>
   </div>
 </body>
  
-<template name="task">
+<template name="topic">
   <li class="{{#if checked}}checked{{/if}} {{#if private}}private{{/if}}">
     <button class="delete">&times;</button>
  
