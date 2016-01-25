@@ -43,7 +43,7 @@ if (Meteor.isClient) {
     step: function() {
       return Template.instance().currentStep.get();
     },
-    stepData: function() {
+    /*stepData: function() {
       var step = Template.instance().currentStep.get();
 
       var data = {
@@ -60,10 +60,10 @@ if (Meteor.isClient) {
           [...]
         ]
       };
-
+    
       return data[ step ];
     }
-
+*/
 
     topics: function () {
       // Show newest topics at the top
