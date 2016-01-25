@@ -1,13 +1,16 @@
 <head>
-  <title>Topics</title>
+  <title>Joke Shovel</title>
 </head>
  
 <body>
+  {{> startingpage }}
   <div class="container">
     
     <div class="ui grid">
       <div class="six wide column">
 
+        {{> Template.dynamic template=step data=stepData }}
+        
         <div class="ui vertical steps">
           <div class="completed step">
             <div class="content">
@@ -40,7 +43,6 @@
           </div>
         <header>
           
-
           {{> loginButtons}}
 
           {{#if currentUser}}
@@ -63,6 +65,11 @@
 
     
 </body>
+
+<template name="startingpage">
+  <p>Hello World!</p>
+  <img class="ui centered medium image" src="/images/jokeshovel_logo.jpg">
+</template>
  
 <template name="topic">
   <li class="{{#if checked}}checked{{/if}} {{#if private}}private{{/if}}">

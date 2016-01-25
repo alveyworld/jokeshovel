@@ -40,6 +40,31 @@ if (Meteor.isClient) {
   Meteor.subscribe("topics");  
 
   Template.body.helpers({
+    step: function() {
+      return Template.instance().currentStep.get();
+    },
+    stepData: function() {
+      var step = Template.instance().currentStep.get();
+
+      var data = {
+        "books": [
+          { "name": "Seeking Wisdom: From Darwin to Munger", "creator": "Peter Bevelin" }
+          [...]
+        ],
+        "movies": [
+          { "name": "Ghostbusters", "creator": "Dan Aykroyd" },
+          [...]
+        ],
+        "games": [
+          { "name": "Grand Theft Auto V", "creator": "Rockstar Games" },
+          [...]
+        ]
+      };
+
+      return data[ step ];
+    }
+
+
     topics: function () {
       // Show newest topics at the top
       if (Session.get("hideCompleted")) {
@@ -93,6 +118,9 @@ if (Meteor.isClient) {
     },
     "click .toggle-private": function () {
       Meteor.call("setPrivate", this._id, ! this.private);
+    },
+    "click .text": function () {
+      Meteor.call("openAssociationList", this._id);
     }
   });
 
@@ -114,6 +142,14 @@ Meteor.methods({
       owner: Meteor.userId(),
       username: Meteor.user().username
     });
+  },
+  openAssociationList: function (topicId) {
+    var topic = Topics.findOne(topicId);
+    if (topic.private && topic.owner !== Meteor.userId()) {
+      // If the topic is private, make sure only the owner can see the list
+      throw new Meteor.Error("not-authorized");
+    }
+    //Open the association list to add 
   },
   deleteTopic: function (topicId) {
     var topic = Topics.findOne(topicId);
