@@ -86,6 +86,20 @@ Every keystroke is saved. The user can leave in the middle of step 7, come back 
 
 Plain labels are what screen readers announce and what forms use. Playful labels are decoration (headings, empty states, celebrations).
 
+**Visual identity: the legal pad.** Comedians write on yellow legal pads, so the app looks like one (reference: `docs/brand/legal-pad-reference.png`).
+
+| Element | Treatment |
+|---|---|
+| Page | Legal-pad yellow `#F3EE8A` ruled with teal lines `#59A191` every 28 px, and a double red margin line `#AF4044` at the left. Content starts to the right of the margin. |
+| Binding | Charcoal `#4E4E4E` top bar (with a darker top edge) and charcoal bottom tabs / side rail. Active tab and focus rings on the binding use the pad yellow. |
+| Cards | Off-white index cards `#FFFDF2` laid on the pad, small radius, soft shadow. |
+| Logo | The illustrated shovel with "JS" on the blade and the distressed "JOKE SHOVEL" wordmark. Full lockup on the sign-in page; blade icon + light wordmark in the top bar; blade icon as favicon and app icon. Cut from the reference by `tools/brand/extract.py`. Replace with original artwork files when available. |
+| Type | Headings in Alfa Slab One (self-hosted, OFL), echoing the wordmark's slab letters; body text in the system sans for readability. |
+| Accents | Shovel-handle brown `#7A4630` for buttons and links; gold stars. |
+| Dark mode | "Night pad": charcoal-olive paper `#23221C` with dim teal rules and a muted margin; the same layout. |
+
+All text and UI colours are checked against WCAG AA in both themes (see `apps/web/src/styles/tokens.css`).
+
 **Success metrics (prototype)**
 
 - Users who start a topic go on to write at least one setup (activation): ≥ 60%.

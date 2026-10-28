@@ -1,4 +1,6 @@
 import { NavLink, Outlet } from 'react-router';
+import bladeIcon from '../assets/brand/icon-64.png';
+import wordmarkLight from '../assets/brand/wordmark-light.png';
 import { useOutbox } from '../data/OutboxProvider';
 import { useSaveState } from '../data/hooks';
 import { SaveIndicator } from './SaveIndicator';
@@ -19,7 +21,8 @@ export function AppShell() {
       </a>
       <header className="topbar">
         <NavLink to="/" className="brand">
-          <span aria-hidden="true">⛏</span> The Joke Shovel
+          <img src={bladeIcon} alt="" className="brand__icon" width={36} height={36} />
+          <img src={wordmarkLight} alt="The Joke Shovel" className="brand__wordmark" width={54} height={34} />
         </NavLink>
         <SaveIndicator snapshot={snapshot} onRetry={() => box.retryNow()} />
       </header>
@@ -37,7 +40,7 @@ export function AppShell() {
           ))}
         </ul>
       </nav>
-      <main id="main" className="main" tabIndex={-1}>
+      <main id="main" className="main paper" tabIndex={-1}>
         <Outlet />
       </main>
     </div>

@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import shovel from '../assets/brand/shovel.png';
 import { NewTopicForm } from '../components/NewTopicForm';
 import { StatChips } from '../components/StatChips';
 import { useProfile, useTopicSummaries } from '../data/hooks';
@@ -48,9 +49,7 @@ export function Home() {
           </ul>
         ) : (
           <div className="empty">
-            <p className="empty__art" aria-hidden="true">
-              ⛰️
-            </p>
+            <img src={shovel} alt="" className="empty__art" width={37} height={120} />
             <p>
               <strong>Every topic is a dig site.</strong> Pick something you have opinions about and start shoveling.
             </p>

@@ -1,26 +1,46 @@
-/* Design tokens. Text colours meet WCAG AA (4.5:1) on --bg and --surface in
-   both themes; UI borders and focus rings meet 3:1. */
+/* Design tokens: a yellow legal pad with teal rules and a red margin, bound
+   by a charcoal strip (see docs/brand/legal-pad-reference.png).
+   Text colours meet WCAG AA (4.5:1) on --paper and --surface in both themes;
+   borders and focus rings meet 3:1. Bar colours are checked against --bar. */
 :root {
-  --bg: #faf7f2;
-  --surface: #ffffff;
-  --surface-2: #f2ece3;
-  --text: #1f1a14;
-  --muted: #5c5247;
-  --border: #8f8273;
-  --border-soft: #e3dacd;
-  --accent: #8a4b08;
-  --accent-hover: #6f3c06;
-  --on-accent: #ffffff;
+  /* Legal pad */
+  --paper: #f3ee8a;
+  --paper-line: rgb(89 161 145 / 0.55);
+  --margin-red: #af4044;
+  --rule: 28px;
+  --margin-x: 10px;
+
+  /* Binding strip (top bar, tabs) */
+  --bar: #4e4e4e;
+  --bar-deep: #353535;
+  --on-bar: #fbf7e4;
+  --on-bar-muted: #dcd8c8;
+  --bar-highlight: #f3ee8a;
+  --bar-success: #9be3b5;
+  --bar-warning: #ffd27a;
+  --bar-danger: #ffaba3;
+
+  /* Index cards and ink */
+  --bg: var(--paper);
+  --surface: #fffdf2;
+  --surface-2: #faf5c4;
+  --text: #1e1d20;
+  --muted: #4f4a3a;
+  --border: #7d7660;
+  --border-soft: #ddd59c;
+  --accent: #7a4630; /* shovel-handle brown */
+  --accent-hover: #5e3523;
+  --on-accent: #fffdf2;
   --gold: #8a6100;
   --danger: #a51d2d;
   --success: #1f6b45;
   --warning: #8a5a00;
   --focus: #1a5fb4;
   --toast-bg: #2b241d;
-  --toast-text: #fbf7f1;
+  --toast-text: #fbf7e4;
 
-  --radius: 12px;
-  --radius-small: 8px;
+  --radius: 6px;
+  --radius-small: 4px;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -28,29 +48,44 @@
   --space-5: 1.5rem;
   --space-6: 2rem;
   --tap: 48px;
+  --topbar-h: 60px;
   --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 2px 8px rgb(0 0 0 / 0.05);
+  --font-display: 'Alfa Slab One', Rockwell, 'Roboto Slab', Georgia, serif;
+  --shadow: 0 1px 0 rgb(0 0 0 / 0.06), 0 2px 6px rgb(60 50 0 / 0.1);
 }
 
+@media (min-width: 640px) {
+  :root {
+    --margin-x: 36px;
+  }
+}
+
+/* "Night pad": the same pad after dark. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #17130f;
-    --surface: #221c16;
-    --surface-2: #2c251e;
-    --text: #f3ede4;
-    --muted: #c4b8a8;
-    --border: #8a7d6d;
-    --border-soft: #3a3129;
-    --accent: #f0a24a;
-    --accent-hover: #f6b86c;
-    --on-accent: #1a1209;
+    --paper: #23221c;
+    --paper-line: rgb(89 161 145 / 0.25);
+    --margin-red: #7a3336;
+
+    --bar: #2b2b2b;
+    --bar-deep: #1a1a1a;
+
+    --surface: #2e2c24;
+    --surface-2: #38352b;
+    --text: #f3eed6;
+    --muted: #c9c2a6;
+    --border: #8a8370;
+    --border-soft: #45412f;
+    --accent: #e3a77c;
+    --accent-hover: #edbf9c;
+    --on-accent: #1e1d20;
     --gold: #f2c14e;
     --danger: #ff8a8a;
     --success: #74d39f;
     --warning: #f2c14e;
     --focus: #8ab8f5;
-    --toast-bg: #f3ede4;
-    --toast-text: #1f1a14;
+    --toast-bg: #f3eed6;
+    --toast-text: #1e1d20;
     --shadow: none;
   }
 }

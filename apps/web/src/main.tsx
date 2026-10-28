@@ -5,6 +5,7 @@ import { RouterProvider } from 'react-router';
 import { AuthProvider } from './auth/AuthProvider';
 import { ToastProvider } from './components/Toasts';
 import { router } from './router';
+import '@fontsource/alfa-slab-one/latin-400.css';
 import './styles/tokens.css';
 import './styles/base.css';
 

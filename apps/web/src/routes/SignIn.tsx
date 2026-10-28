@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useSearchParams } from 'react-router';
+import shovel from '../assets/brand/shovel.png';
+import wordmark from '../assets/brand/wordmark-dark.png';
 import { useAuth } from '../auth/AuthProvider';
 import { env } from '../lib/env';
 import { safeNext } from '../lib/safeNext';
@@ -32,12 +34,13 @@ export function SignIn() {
   };
 
   return (
-    <main className="signin" id="main">
+    <main className="signin paper" id="main">
       <div className="signin__card">
-        <p className="signin__logo" aria-hidden="true">
-          ⛏
+        <h1 className="visually-hidden">The Joke Shovel</h1>
+        <p className="signin__lockup" aria-hidden="true">
+          <img src={shovel} alt="" className="signin__shovel" width={198} height={640} />
+          <img src={wordmark} alt="" className="signin__wordmark" width={353} height={220} />
         </p>
-        <h1>The Joke Shovel</h1>
         <p className="signin__tagline">Every topic is a dig site. Keep shoveling and you’ll hit a joke.</p>
         {error ? (
           <p className="field__error" role="alert">

@@ -111,24 +111,26 @@ export function Associations() {
                   label={`Star “${a.text}”`}
                   icon={['★', '☆']}
                 />
-                <button
-                  type="button"
-                  className="icon-btn"
-                  aria-label={`Move “${a.text}” up`}
-                  disabled={i === 0}
-                  onClick={() => move(i, -1)}
-                >
-                  <span aria-hidden="true">↑</span>
-                </button>
-                <button
-                  type="button"
-                  className="icon-btn"
-                  aria-label={`Move “${a.text}” down`}
-                  disabled={i === associations.length - 1}
-                  onClick={() => move(i, 1)}
-                >
-                  <span aria-hidden="true">↓</span>
-                </button>
+                <div className="item__move">
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    aria-label={`Move “${a.text}” up`}
+                    disabled={i === 0}
+                    onClick={() => move(i, -1)}
+                  >
+                    <span aria-hidden="true">↑</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    aria-label={`Move “${a.text}” down`}
+                    disabled={i === associations.length - 1}
+                    onClick={() => move(i, 1)}
+                  >
+                    <span aria-hidden="true">↓</span>
+                  </button>
+                </div>
                 <button
                   type="button"
                   className="icon-btn icon-btn--danger"
