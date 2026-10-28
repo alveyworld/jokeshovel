@@ -1,27 +1,40 @@
 # The Joke Shovel ⛏️
 
-A mobile-first workbench that helps comedians dig from a broad **topic** to a finished **setup-and-punch joke**, following the structured method in Greg Dean's *Step by Step to Stand-Up Comedy* and its companion workbook. When a joke is done, it can be sent to Google Keep.
-
-- **Design document:** [`docs/DESIGN.md`](docs/DESIGN.md) (product, UX, data model, auth, Keep integration, architecture, phases, user stories, first sprint)
-- **Phase 1 database migration:** [`supabase/migrations/20261027000000_phase1_core.sql`](supabase/migrations/20261027000000_phase1_core.sql)
-- **Smoke tests for that migration** (plain Postgres, with a stub of Supabase's `auth` schema): [`supabase/tests/`](supabase/tests/)
-
-## Stack
-
-Supabase (Postgres, Auth with Google) · Cloudflare Workers (static assets plus a Hono API) · Vite + React + TypeScript · GitHub Actions
+A mobile-first workbench that helps comedians dig from a broad **topic** to a finished **setup-and-punch joke**, following the structured method in Greg Dean's _Step by Step to Stand-Up Comedy_ and its companion workbook. When a joke is done, it can be sent to Google Keep.
 
 ## Status
 
-Design complete; Sprint 1 ("Break Ground") is ready to start. See §19 of the design doc.
+**Sprint 1 ("Break Ground") built and tested locally; not deployed yet** (needs the one-time account setup in the runbook). It includes: Google sign-in, topics, association lists, setups, autosave that survives closed tabs and lost connections, topic counts, and "Resume digging". Next: Phase 2, the guided Joke Mine.
 
-## Run the migration smoke test locally (no Supabase needed)
+## Repository layout
 
-```bash
-createdb jokeshovel_smoke
-psql -d jokeshovel_smoke -v ON_ERROR_STOP=1 \
-  -f supabase/tests/local_auth_stub.sql \
-  -f supabase/migrations/20261027000000_phase1_core.sql
-psql -d jokeshovel_smoke -f supabase/tests/phase1_rls_smoke.sql
+```
+apps/web/          Vite + React + TypeScript single-page app
+worker/            Cloudflare Worker (Hono): serves the app and /api/*
+packages/shared/   Types generated from the database, shared constants
+supabase/          config.toml, migrations/, tests/ (pgTAP)
+docs/              DESIGN.md, RUNBOOK.md, sprint reviews
+.github/workflows/ ci.yml, deploy.yml, backup.yml
 ```
 
-The last three statements are expected to fail or return 0. They show that a second user can't attach rows to, or edit, the first user's topic.
+## Quick start
+
+```bash
+pnpm install
+pnpm db:start            # local Supabase in Docker
+cp apps/web/.env.example apps/web/.env.local     # fill in the anon key from `pnpm exec supabase status`
+cp worker/.dev.vars.example worker/.dev.vars
+pnpm dev                 # http://localhost:5173
+```
+
+Full instructions, production setup, deploys, rollback and backups: [`docs/RUNBOOK.md`](docs/RUNBOOK.md).
+
+## Docs
+
+- [`docs/DESIGN.md`](docs/DESIGN.md): product, UX, data model, auth, Keep publishing, architecture, phases, user stories
+- [`docs/RUNBOOK.md`](docs/RUNBOOK.md): running, deploying, restoring
+- [`docs/sprint-1-review.md`](docs/sprint-1-review.md): what Sprint 1 delivered and what's left
+
+## Stack
+
+Supabase (Postgres, Auth with Google) · Cloudflare Workers (static assets + Hono API) · Vite + React 19 + TypeScript · TanStack Query · Vitest · Playwright · GitHub Actions

@@ -86,6 +86,20 @@ Every keystroke is saved. The user can leave in the middle of step 7, come back 
 
 Plain labels are what screen readers announce and what forms use. Playful labels are decoration (headings, empty states, celebrations).
 
+**Visual identity: the legal pad.** Comedians write on yellow legal pads, so the app looks like one (reference: `docs/brand/legal-pad-reference.png`).
+
+| Element | Treatment |
+|---|---|
+| Page | Legal-pad yellow `#F3EE8A` ruled with teal lines `#59A191` every 28 px, and a double red margin line `#AF4044` at the left. Content starts to the right of the margin. |
+| Binding | Charcoal `#4E4E4E` top bar (with a darker top edge) and charcoal bottom tabs / side rail. Active tab and focus rings on the binding use the pad yellow. |
+| Cards | Off-white index cards `#FFFDF2` laid on the pad, small radius, soft shadow. |
+| Logo | The illustrated shovel with "JS" on the blade and the distressed "JOKE SHOVEL" wordmark. Full lockup on the sign-in page; blade icon + light wordmark in the top bar; blade icon as favicon and app icon. Cut from the reference by `tools/brand/extract.py`. Replace with original artwork files when available. |
+| Type | Headings in Alfa Slab One (self-hosted, OFL), echoing the wordmark's slab letters; body text in the system sans for readability. |
+| Accents | Shovel-handle brown `#7A4630` for buttons and links; gold stars. |
+| Dark mode | "Night pad": charcoal-olive paper `#23221C` with dim teal rules and a muted margin; the same layout. |
+
+All text and UI colours are checked against WCAG AA in both themes (see `apps/web/src/styles/tokens.css`).
+
 **Success metrics (prototype)**
 
 - Users who start a topic go on to write at least one setup (activation): ≥ 60%.
@@ -1249,7 +1263,7 @@ Given/When/Then, grouped by phase. IDs are referenced in §13.
 |---|---|---|
 | Database | `supabase test db` (pgTAP) | RLS per table (owner can CRUD; other user can't read, insert, update, delete, or cross-link); triggers (`updated_at`, `last_activity_at`, validation); `topic_stats` numbers against fixtures; `complete_attempt` idempotency |
 | Shared logic | Vitest | `keywords.ts` (table-driven: stop words, scoring, ties, fallback, dedupe suffix, 80-char trim), `note-format.ts`, autosave outbox ordering and retry |
-| Worker | Vitest + `@cloudflare/vitest-pool-workers` | JWT verification (valid, expired, wrong audience), rate limiting, OAuth state signing and expiry, token encryption round trip, Google error mapping (mocked fetch) |
+| Worker | Vitest with Hono's `app.request()`, plus a `wrangler dev` smoke test | JWT verification (valid, expired, wrong audience), rate limiting, OAuth state signing and expiry, token encryption round trip, Google error mapping (mocked fetch) |
 | Components | Vitest + Testing Library | Save indicator states, ChipInput keyboard behavior, Stepper aria attributes |
 | End-to-end | Playwright (Chromium, WebKit, mobile viewports) against `wrangler dev` + local Supabase | Golden path topic → joke → publish (share mocked), offline autosave (`context.setOffline`), back/forward, resume |
 | Accessibility | `@axe-core/playwright` in e2e, manual NVDA + VoiceOver pass per phase, keyboard-only pass | AC-X1–X3 |
@@ -1257,7 +1271,7 @@ Given/When/Then, grouped by phase. IDs are referenced in §13.
 | Manual | Real devices: a mid-range Android phone (Chrome) and an iPhone (Safari) | Share-to-Keep behavior, touch targets, keyboard overlap with sticky footers |
 | Auth | e2e uses Supabase test users created via the admin API (no real Google login in CI); a manual Google login check before each release | |
 
-The Phase 1 smoke test that was already run against PostgreSQL 16 is in `supabase/tests/phase1_rls_smoke.sql` (with `local_auth_stub.sql`). It is turned into pgTAP in Sprint 1.
+Phase 1 database tests live in `supabase/tests/database/phase1_rls.test.sql` (pgTAP, run by `pnpm db:test`).
 
 ---
 
@@ -1292,6 +1306,8 @@ The Phase 1 smoke test that was already run against PostgreSQL 16 is in `supabas
 ---
 
 ## 19. Recommended first sprint
+
+> **Status (2026-10-28):** built and tested locally; waiting on account setup to deploy. See [`sprint-1-review.md`](sprint-1-review.md).
 
 **Sprint 1 — "Break Ground"** · 2 weeks · 1 developer
 **Sprint goal:** a deployed app where I can sign in with Google, create topics, brainstorm associations, write setups, see counts, close the tab mid-sentence, and find everything there when I come back.
