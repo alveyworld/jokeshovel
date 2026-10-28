@@ -1249,7 +1249,7 @@ Given/When/Then, grouped by phase. IDs are referenced in §13.
 |---|---|---|
 | Database | `supabase test db` (pgTAP) | RLS per table (owner can CRUD; other user can't read, insert, update, delete, or cross-link); triggers (`updated_at`, `last_activity_at`, validation); `topic_stats` numbers against fixtures; `complete_attempt` idempotency |
 | Shared logic | Vitest | `keywords.ts` (table-driven: stop words, scoring, ties, fallback, dedupe suffix, 80-char trim), `note-format.ts`, autosave outbox ordering and retry |
-| Worker | Vitest + `@cloudflare/vitest-pool-workers` | JWT verification (valid, expired, wrong audience), rate limiting, OAuth state signing and expiry, token encryption round trip, Google error mapping (mocked fetch) |
+| Worker | Vitest with Hono's `app.request()`, plus a `wrangler dev` smoke test | JWT verification (valid, expired, wrong audience), rate limiting, OAuth state signing and expiry, token encryption round trip, Google error mapping (mocked fetch) |
 | Components | Vitest + Testing Library | Save indicator states, ChipInput keyboard behavior, Stepper aria attributes |
 | End-to-end | Playwright (Chromium, WebKit, mobile viewports) against `wrangler dev` + local Supabase | Golden path topic → joke → publish (share mocked), offline autosave (`context.setOffline`), back/forward, resume |
 | Accessibility | `@axe-core/playwright` in e2e, manual NVDA + VoiceOver pass per phase, keyboard-only pass | AC-X1–X3 |
@@ -1257,7 +1257,7 @@ Given/When/Then, grouped by phase. IDs are referenced in §13.
 | Manual | Real devices: a mid-range Android phone (Chrome) and an iPhone (Safari) | Share-to-Keep behavior, touch targets, keyboard overlap with sticky footers |
 | Auth | e2e uses Supabase test users created via the admin API (no real Google login in CI); a manual Google login check before each release | |
 
-The Phase 1 smoke test that was already run against PostgreSQL 16 is in `supabase/tests/phase1_rls_smoke.sql` (with `local_auth_stub.sql`). It is turned into pgTAP in Sprint 1.
+Phase 1 database tests live in `supabase/tests/database/phase1_rls.test.sql` (pgTAP, run by `pnpm db:test`).
 
 ---
 
@@ -1292,6 +1292,8 @@ The Phase 1 smoke test that was already run against PostgreSQL 16 is in `supabas
 ---
 
 ## 19. Recommended first sprint
+
+> **Status (2026-10-28):** built and tested locally; waiting on account setup to deploy. See [`sprint-1-review.md`](sprint-1-review.md).
 
 **Sprint 1 — "Break Ground"** · 2 weeks · 1 developer
 **Sprint goal:** a deployed app where I can sign in with Google, create topics, brainstorm associations, write setups, see counts, close the tab mid-sentence, and find everything there when I come back.

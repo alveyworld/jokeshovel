@@ -1,0 +1,13 @@
+packages:
+  - apps/*
+  - worker
+  - packages/*
+onlyBuiltDependencies:
+  - esbuild
+  - supabase
+  - workerd
+# Match the Playwright browsers available in the dev container and CI image.
+overrides:
+  '@playwright/test': 1.63.0
+  playwright: 1.63.0
+  playwright-core: 1.63.0

@@ -1,0 +1,47 @@
+name: Nightly backup
+
+# The Supabase Free plan has no managed backups, so this job dumps the
+# database every night, encrypts it, and stores it in Cloudflare R2 (30-day
+# lifecycle rule on the bucket). Querying the database also keeps the free
+# project from being paused for inactivity. Enabled by BACKUP_ENABLED=true.
+on:
+  schedule:
+    - cron: '17 9 * * *' # 09:17 UTC daily
+  workflow_dispatch:
+
+jobs:
+  backup:
+    if: vars.BACKUP_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: sudo apt-get update && sudo apt-get install -y age
+
+      - name: Dump schema and data
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          mkdir backup
+          pnpm exec supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/schema.sql
+          pnpm exec supabase db dump --db-url "$SUPABASE_DB_URL" --role-only -f backup/roles.sql
+          pnpm exec supabase db dump --db-url "$SUPABASE_DB_URL" --data-only --use-copy -f backup/data.sql
+          tar czf backup.tar.gz backup
+
+      - name: Encrypt
+        run: age -r "${{ vars.BACKUP_AGE_RECIPIENT }}" -o backup.tar.gz.age backup.tar.gz
+
+      - name: Upload to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          aws s3 cp backup.tar.gz.age \
+            "s3://${{ vars.R2_BACKUP_BUCKET }}/jokeshovel-$(date -u +%Y-%m-%dT%H%MZ).tar.gz.age" \
+            --endpoint-url "https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com"

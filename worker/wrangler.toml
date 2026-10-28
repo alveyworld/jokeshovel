@@ -1,0 +1,22 @@
+name = "jokeshovel"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+# The SPA build is served as static assets. Only /api/* runs the Worker first;
+# every other unknown path falls back to index.html for client-side routing.
+[assets]
+directory = "../apps/web/dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[observability]
+enabled = true
+
+# Local defaults. Production values are passed by .github/workflows/deploy.yml
+# (`wrangler deploy --var ...`); secrets are set with `wrangler secret put`.
+# Override locally in worker/.dev.vars (see .dev.vars.example).
+[vars]
+SUPABASE_URL = "http://127.0.0.1:54321"
+SUPABASE_ANON_KEY = ""
+APP_BASE_URL = "http://localhost:8787"
