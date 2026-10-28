@@ -4,12 +4,13 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { AutosaveField } from '../components/AutosaveField';
 import { ToggleButton } from '../components/ToggleButton';
 import { useToast } from '../components/Toasts';
-import { useAssociations, useMutations, useSetups } from '../data/hooks';
+import { useAssociations, useMutations, useSetups, useTopicAttempts } from '../data/hooks';
 
 export function Setups() {
   const { topicId = '' } = useParams();
   const { setups, isPending } = useSetups(topicId);
   const { associations } = useAssociations(topicId);
+  const { attempts } = useTopicAttempts(topicId);
   const { createSetup, update, softDelete, restore, setArchived } = useMutations();
   const { showToast } = useToast();
   const location = useLocation();
@@ -31,6 +32,9 @@ export function Setups() {
     const id = createSetup(topicId, setups);
     navigate(location.pathname, { replace: true, state: { focusSetupId: id } });
   };
+
+  const draftCount = (setupId: string) =>
+    attempts.filter((a) => a.setup_id === setupId && a.status === 'in_progress').length;
 
   const remove = (s: Setup) => {
     softDelete('setups', s.id);
@@ -76,6 +80,16 @@ export function Setups() {
           <span aria-hidden="true">🗑</span>
         </button>
       </div>
+      <div className="item__footer">
+        <Link to={`/s/${s.id}`} className="btn btn--small" aria-label={`Mine this setup — Setup ${index + 1}`}>
+          Mine this setup <span aria-hidden="true">›</span>
+        </Link>
+        {draftCount(s.id) ? (
+          <span className="chip">
+            {draftCount(s.id)} {draftCount(s.id) === 1 ? 'draft' : 'drafts'}
+          </span>
+        ) : null}
+      </div>
     </li>
   );
 
@@ -86,7 +100,7 @@ export function Setups() {
       </h2>
       <p className="workspace__intro">
         A setup is a sentence or two, usually true or believable, that gets the audience picturing a scene. Write
-        several. You’ll take them apart in the Joke Mine (coming next).
+        several, then choose <strong>Mine this setup</strong> to dig a joke out of one.
       </p>
 
       <aside className="card card--context" aria-labelledby="starred-heading">

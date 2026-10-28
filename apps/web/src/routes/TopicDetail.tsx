@@ -41,6 +41,7 @@ export function TopicDetail() {
       status: topic.status,
       is_favorite: topic.is_favorite,
       last_activity_at: topic.last_activity_at,
+      unfinished_attempt_count: 0,
     }),
     association_count: associations.length,
     setup_count: setups.filter((s) => s.status === 'active').length,

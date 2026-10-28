@@ -557,7 +557,6 @@ Assumptions belong to the **setup**, because the setup is what creates them. Sev
 | topic_id | uuid | denormalized for stats; filled from the setup by a trigger |
 | status | enum `in_progress` \| `completed` \| `abandoned` \| `archived` | |
 | current_step | enum `target` \| `connector` \| `reinterpretations` \| `choose` \| `second_story` \| `punch` \| `review` | the step the user last worked on |
-| skipped_steps | text[] | for stepper display |
 | target_assumption_id | uuid | FK `(target_assumption_id, user_id)` → assumptions, `on delete set null (target_assumption_id)` |
 | connector | text ≤ 200 | |
 | connector_note | text | why this connector |
@@ -565,12 +564,13 @@ Assumptions belong to the **setup**, because the setup is what creates them. Sev
 | second_story | text ≤ 4000 | |
 | punch | text ≤ 1000 | |
 | notes | text | |
-| version | int | optimistic concurrency (§7.7) |
 | started_at, last_step_at, completed_at | timestamptz | |
 | created_at, updated_at, deleted_at | | |
 
 Validation trigger: the target assumption must belong to the same setup, and the selected reinterpretation must belong to this attempt.
 Indexes: `(user_id, status, updated_at desc)` for Drafts and Resume, `(setup_id)`, `(topic_id, status)`.
+
+*As built (Phase 2):* step status (done / skipped / to do) is **derived** from the attempt's data rather than stored, so it can't drift; and there is no `version` column yet. Each field still saves on its own (last writer wins), which is safe for a single author. Optimistic concurrency arrives with the first multi-field operation that needs it ("complete joke", Phase 3).
 
 #### `reinterpretations` (Phase 2)
 | Column | Type | Notes |
@@ -680,6 +680,8 @@ Performance: correlated subquery counts are fine for prototype scale (hundreds o
 2. **Client-generated UUIDs and upserts** make "create" idempotent. The UI can show a new setup immediately and save it in the background. Retries never create duplicates.
 3. **Field-level autosave.** Each field saves on its own (debounced 800 ms, on blur, and on `visibilitychange: hidden`). Only changed columns are PATCHed, so two tabs editing different fields don't overwrite each other.
 4. **Local buffer.** Pending writes go into an IndexedDB outbox (`{table, id, patch, queuedAt}`) before the network call and are removed when the server acknowledges them. On app load and on `online`, the outbox is replayed in order. While the outbox is non-empty, the UI shows "Saved on this device".
+   - *Ordering:* a row's creation keeps its place in the queue (parents before children). Edits to a row are merged into one update that moves to the back of the queue, so an edit that points at a newer row (choosing a just-added assumption as the target) is written after that row exists.
+   - *Stale responses:* a saved change stays applied on screen for 15 seconds, so a fetch that started before the save and returns after it can't hide the change before the follow-up refetch arrives.
 5. **Concurrency.** Single-field patches use last-writer-wins, which is acceptable for a single author. Multi-field operations (complete joke, choose a reinterpretation that resets later steps) use `version`: `update … set …, version = version + 1 where id = $1 and version = $2`. If no row matches, the client refetches and shows a non-destructive "This was changed on another device" banner that offers both versions.
 6. **Resume pointer.** Navigation to an editing route writes `profiles.last_location` (debounced 5 s). `joke_attempts.current_step` and `last_step_at` are updated when the user enters a step.
 7. **Soft delete and Trash.** Deletes set `deleted_at`. A scheduled job (Supabase `pg_cron`) hard-deletes rows older than 30 days.
@@ -1061,6 +1063,9 @@ Each phase ends with something deployed and usable. Sprints are 2 weeks for one 
 - **Risks and dependencies:** Google Cloud OAuth consent screen setup (allow 1 day); Supabase redirect URL configuration; autosave edge cases.
 
 ### Phase 2 — Guided Joke Mine (Sprints 2–3)
+
+> **Status (2026-10-28):** built and tested locally. See [`phase-2-review.md`](phase-2-review.md).
+
 - **Goal:** take a setup all the way to a punch.
 - **User value:** the core of the method, guided.
 - **Features:** assumptions list, start attempt, target selection, connector with word chips, reinterpretation brainstorm and choice, second story, punch, stepper, thread panel, skip-ahead, multiple attempts per setup, Drafts tab.

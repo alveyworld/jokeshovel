@@ -2,12 +2,14 @@ import { Link } from 'react-router';
 import shovel from '../assets/brand/shovel.png';
 import { NewTopicForm } from '../components/NewTopicForm';
 import { StatChips } from '../components/StatChips';
-import { useProfile, useTopicSummaries } from '../data/hooks';
+import { useDrafts, useProfile, useTopicSummaries } from '../data/hooks';
+import { DraftCard } from './Drafts';
 import { relativeTime } from '../lib/time';
 
 export function Home() {
   const { topics, isPending } = useTopicSummaries();
   const { lastLocation } = useProfile();
+  const { drafts } = useDrafts();
   const recent = topics.filter((t) => t.status === 'active').slice(0, 3);
 
   return (
@@ -26,6 +28,22 @@ export function Home() {
           <Link to={lastLocation.route} className="btn btn--primary">
             Continue <span aria-hidden="true">→</span>
           </Link>
+        </section>
+      ) : null}
+
+      {drafts.length ? (
+        <section aria-labelledby="shafts-heading">
+          <div className="section-head">
+            <h2 id="shafts-heading">Open shafts</h2>
+            <Link to="/drafts">See all ({drafts.length})</Link>
+          </div>
+          <ul className="card-list">
+            {drafts.slice(0, 3).map((d) => (
+              <li key={d.attempt_id}>
+                <DraftCard draft={d} />
+              </li>
+            ))}
+          </ul>
         </section>
       ) : null}
 

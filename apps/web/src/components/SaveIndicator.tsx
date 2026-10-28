@@ -7,7 +7,7 @@ const LABELS: Record<OutboxSnapshot['state'], string> = {
   error: 'Couldn’t save',
 };
 
-const ICONS: Record<OutboxSnapshot['state'], string> = { saved: '✓', saving: '…', offline: '⚠', error: '⚠' };
+const ICONS: Record<OutboxSnapshot['state'], string> = { saved: '✓', saving: '↻', offline: '⚠', error: '⚠' };
 
 /**
  * Always-visible save status. Screen readers hear problems at once, and
