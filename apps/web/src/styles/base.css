@@ -89,6 +89,20 @@ a:hover {
   }
 }
 
+/* Single-column grids: let tracks shrink below a field's intrinsic width
+   (a text input's default size can exceed a 320px screen). */
+.page,
+.topic-head,
+.workspace,
+.field,
+.card,
+.inline-form,
+.chip-input,
+.signin__card,
+.dev-login {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .visually-hidden {
   position: absolute !important;
   width: 1px;
@@ -585,6 +599,7 @@ textarea[aria-invalid='true'] {
 }
 .segmented {
   display: inline-flex;
+  flex-wrap: wrap;
   margin: 0;
   padding: 2px;
   background: var(--surface);
@@ -648,13 +663,15 @@ textarea[aria-invalid='true'] {
 }
 .topic-head__actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
 }
 
 .subtabs {
   display: flex;
-  gap: var(--space-2);
+  flex-wrap: wrap;
+  gap: 0 var(--space-1);
   border-bottom: 1px solid var(--border-soft);
 }
 .subtabs__link {
@@ -662,7 +679,7 @@ textarea[aria-invalid='true'] {
   align-items: center;
   gap: var(--space-2);
   min-height: var(--tap);
-  padding: 0 var(--space-3);
+  padding: 0 var(--space-2);
   font-weight: 700;
   color: var(--muted);
   text-decoration: none;
