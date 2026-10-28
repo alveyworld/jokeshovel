@@ -22,8 +22,7 @@ docs/              DESIGN.md, RUNBOOK.md, sprint reviews
 ```bash
 pnpm install
 pnpm db:start            # local Supabase in Docker
-cp apps/web/.env.example apps/web/.env.local     # fill in the anon key from `pnpm exec supabase status`
-cp worker/.dev.vars.example worker/.dev.vars
+cp apps/web/.env.example apps/web/.env.local     # fill in ANON_KEY from `pnpm exec supabase status -o env`
 pnpm dev                 # http://localhost:5173
 ```
 

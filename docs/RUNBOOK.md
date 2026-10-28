@@ -4,16 +4,19 @@ How to run, deploy, roll back, and restore The Joke Shovel.
 
 ## Local development
 
-Requirements: Node 22+, pnpm 10 (`corepack enable`), Docker.
+Requirements: Node 22+, pnpm 10 (`npm install -g pnpm@10`), Docker Desktop (running).
 
 ```bash
-pnpm install
+pnpm install                      # at the repository root
 pnpm db:start                     # local Supabase (Postgres, Auth, REST) in Docker
 cp apps/web/.env.example apps/web/.env.local
-cp worker/.dev.vars.example worker/.dev.vars
-pnpm exec supabase status         # copy the anon key into both files
-pnpm dev                          # web on http://localhost:5173, Worker on :8787
+pnpm exec supabase status -o env  # copy ANON_KEY into apps/web/.env.local
+pnpm dev                          # web app on http://localhost:5173
 ```
+
+The Worker (`/api/*`) isn't needed by the app yet. To run it too, in a second
+terminal: `cp worker/.dev.vars.example worker/.dev.vars`, paste the same anon key,
+then `pnpm dev:worker` (builds the web app, then serves it and the API on :8787).
 
 Sign in with **Developer sign-in** (email + any password of 6+ characters; the
 account is created on first use). Google login is off locally unless you set it up
