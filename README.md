@@ -4,7 +4,12 @@ A mobile-first workbench that helps comedians dig from a broad **topic** to a fi
 
 ## Status
 
-**Sprint 1 ("Break Ground") built and tested locally; not deployed yet** (needs the one-time account setup in the runbook). It includes: Google sign-in, topics, association lists, setups, autosave that survives closed tabs and lost connections, topic counts, and "Resume digging". Next: Phase 2, the guided Joke Mine.
+Built and tested locally; **not deployed yet** (needs the one-time account setup in the runbook).
+
+- **Sprint 1:** Google sign-in, topics, association lists, setups, autosave that survives closed tabs and lost connections, topic counts, and "Resume digging".
+- **Phase 2, the Joke Mine:** list a setup's assumptions, then take a joke attempt step by step: target, connector (tap words in the setup), reinterpretations, choice, second story, punch. Multiple attempts per setup, a "thread so far" panel, and a Drafts tab.
+
+Next: Phase 3, reviewing and completing jokes.
 
 ## Repository layout
 
@@ -32,7 +37,7 @@ Full instructions, production setup, deploys, rollback and backups: [`docs/RUNBO
 
 - [`docs/DESIGN.md`](docs/DESIGN.md): product, UX, data model, auth, Keep publishing, architecture, phases, user stories
 - [`docs/RUNBOOK.md`](docs/RUNBOOK.md): running, deploying, restoring
-- [`docs/sprint-1-review.md`](docs/sprint-1-review.md): what Sprint 1 delivered and what's left
+- [`docs/sprint-1-review.md`](docs/sprint-1-review.md), [`docs/phase-2-review.md`](docs/phase-2-review.md): what each phase delivered
 
 ## Stack
 

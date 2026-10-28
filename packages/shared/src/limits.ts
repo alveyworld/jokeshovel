@@ -6,4 +6,10 @@ export const LIMITS = {
   association: 200,
   setup: 1000,
   displayName: 80,
+  assumption: 300,
+  connector: 200,
+  connectorNote: 2000,
+  reinterpretation: 300,
+  secondStory: 4000,
+  punch: 1000,
 } as const;

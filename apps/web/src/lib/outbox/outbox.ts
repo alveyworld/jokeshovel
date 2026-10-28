@@ -3,14 +3,18 @@
  *
  * - Edits are queued immediately (and persisted to IndexedDB), so closing the
  *   tab or losing the connection never loses work.
- * - Edits to the same row are coalesced; the row keeps its place in the queue
- *   so a child row is never written before its parent.
+ * - A row's creation keeps its place in the queue, so a child row is never
+ *   written before its parent. Edits to a row are coalesced into one update
+ *   that moves to the back of the queue, so an edit that points at a row
+ *   created later (e.g. choosing a new assumption as the target) is written
+ *   after that row exists.
  * - Flushing is debounced and strictly sequential. Retryable failures (offline,
  *   5xx, 429, expired token) back off and retry; permanent failures (e.g. a
  *   constraint violation) are dropped and reported so the queue never jams.
  */
 
-export type TableName = 'profiles' | 'topics' | 'associations' | 'setups';
+export type TableName =
+  'profiles' | 'topics' | 'associations' | 'setups' | 'assumptions' | 'joke_attempts' | 'reinterpretations';
 export type OpKind = 'insert' | 'update';
 export type Values = Record<string, unknown>;
 
@@ -45,6 +49,12 @@ export interface OutboxSnapshot {
 
 export interface OutboxOptions {
   debounceMs?: number;
+  /**
+   * How long a saved change stays in pending(). A fetch that started before
+   * the save can return after it; keeping the change in the overlay stops that
+   * stale response from hiding it until the follow-up refetch arrives.
+   */
+  recentMs?: number;
   retryDelaysMs?: number[];
   now?: () => Date;
   /** Called after an op is written, before it leaves the pending set. */
@@ -80,6 +90,8 @@ export class Outbox {
   private version = 0;
   private snapshot: OutboxSnapshot;
   private readonly debounceMs: number;
+  private readonly recentMs: number;
+  private recent = new Map<string, { op: PendingOp; at: number }>();
   private readonly retryDelaysMs: number[];
   private readonly now: () => Date;
 
@@ -90,6 +102,7 @@ export class Outbox {
   ) {
     this.executor = executor;
     this.debounceMs = options.debounceMs ?? 800;
+    this.recentMs = options.recentMs ?? 15_000;
     this.retryDelaysMs = options.retryDelaysMs ?? DEFAULT_RETRY_DELAYS;
     this.now = options.now ?? (() => new Date());
     this.snapshot = this.buildSnapshot();
@@ -141,10 +154,18 @@ export class Outbox {
     if (executor && this.queue.length) this.schedule(0);
   }
 
-  /** Every unsaved row change, merged per row (in-flight first, then queued). */
+  /**
+   * Every change the screen should show on top of fetched rows, merged per row:
+   * recently saved first, then in flight, then queued.
+   */
   pending(): Map<string, PendingOp> {
     const map = new Map<string, PendingOp>();
-    for (const op of this.inflight ? [this.inflight, ...this.queue] : this.queue) {
+    const cutoff = this.now().getTime() - this.recentMs;
+    for (const [key, entry] of this.recent) {
+      if (entry.at < cutoff) this.recent.delete(key);
+    }
+    const recent = [...this.recent.values()].map((e) => e.op);
+    for (const op of [...recent, ...(this.inflight ? [this.inflight] : []), ...this.queue]) {
       const existing = map.get(op.key);
       map.set(op.key, existing ? merge(existing, op) : op);
     }
@@ -160,6 +181,7 @@ export class Outbox {
     this.timer = null;
     this.queue = [];
     this.inflight = null;
+    this.recent.clear();
     this.waitingRetry = false;
     this.lastError = null;
     await this.saveChain;
@@ -190,9 +212,16 @@ export class Outbox {
   }
 
   private enqueue(op: PendingOp, notify = true) {
-    const index = this.queue.findIndex((q) => q.key === op.key);
-    if (index >= 0) this.queue[index] = merge(this.queue[index], op);
-    else this.queue.push(op);
+    if (op.kind === 'update') {
+      // Fold any queued update for this row into this one and move it to the back.
+      const index = this.queue.findIndex((q) => q.key === op.key && q.kind === 'update');
+      const merged = index >= 0 ? merge(this.queue.splice(index, 1)[0], op) : op;
+      this.queue.push(merged);
+    } else {
+      const index = this.queue.findIndex((q) => q.key === op.key);
+      if (index >= 0) this.queue[index] = merge(this.queue[index], op);
+      else this.queue.push(op);
+    }
     if (!notify) return;
     this.persist();
     this.changed();
@@ -227,6 +256,8 @@ export class Outbox {
           this.retryIndex = 0;
           this.lastError = null;
           this.lastSavedAt = this.now().toISOString();
+          const previous = this.recent.get(op.key);
+          this.recent.set(op.key, { op: previous ? merge(previous.op, op) : op, at: this.now().getTime() });
           this.drainedTables.add(op.table);
           this.options.onOpSaved?.(op);
           this.persist();
@@ -234,14 +265,9 @@ export class Outbox {
         }
 
         if (result.retryable) {
-          // Put it back at the front, folding in any newer edits to the same row.
-          const index = this.queue.findIndex((q) => q.key === op.key);
-          if (index >= 0) {
-            const [newer] = this.queue.splice(index, 1);
-            this.queue.unshift(merge(op, newer));
-          } else {
-            this.queue.unshift(op);
-          }
+          // Put it back at the front. Newer edits to the same row stay queued
+          // where they are, so they still follow anything they refer to.
+          this.queue.unshift(op);
           this.waitingRetry = true;
           const delay = this.retryDelaysMs[Math.min(this.retryIndex, this.retryDelaysMs.length - 1)];
           this.retryIndex += 1;

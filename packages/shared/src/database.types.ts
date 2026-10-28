@@ -55,6 +55,151 @@ export type Database = {
           },
         ];
       };
+      assumptions: {
+        Row: {
+          created_at: string;
+          deleted_at: string | null;
+          id: string;
+          setup_id: string;
+          sort_order: number;
+          text: string;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          deleted_at?: string | null;
+          id?: string;
+          setup_id: string;
+          sort_order?: number;
+          text: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          created_at?: string;
+          deleted_at?: string | null;
+          id?: string;
+          setup_id?: string;
+          sort_order?: number;
+          text?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'assumptions_setup_id_user_id_fkey';
+            columns: ['setup_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'setups';
+            referencedColumns: ['id', 'user_id'];
+          },
+        ];
+      };
+      joke_attempts: {
+        Row: {
+          completed_at: string | null;
+          connector: string;
+          connector_note: string;
+          created_at: string;
+          current_step: Database['public']['Enums']['attempt_step'];
+          deleted_at: string | null;
+          id: string;
+          last_step_at: string;
+          notes: string;
+          punch: string;
+          second_story: string;
+          selected_reinterpretation_id: string | null;
+          setup_id: string;
+          started_at: string;
+          status: Database['public']['Enums']['attempt_status'];
+          target_assumption_id: string | null;
+          topic_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          completed_at?: string | null;
+          connector?: string;
+          connector_note?: string;
+          created_at?: string;
+          current_step?: Database['public']['Enums']['attempt_step'];
+          deleted_at?: string | null;
+          id?: string;
+          last_step_at?: string;
+          notes?: string;
+          punch?: string;
+          second_story?: string;
+          selected_reinterpretation_id?: string | null;
+          setup_id: string;
+          started_at?: string;
+          status?: Database['public']['Enums']['attempt_status'];
+          target_assumption_id?: string | null;
+          topic_id: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          connector?: string;
+          connector_note?: string;
+          created_at?: string;
+          current_step?: Database['public']['Enums']['attempt_step'];
+          deleted_at?: string | null;
+          id?: string;
+          last_step_at?: string;
+          notes?: string;
+          punch?: string;
+          second_story?: string;
+          selected_reinterpretation_id?: string | null;
+          setup_id?: string;
+          started_at?: string;
+          status?: Database['public']['Enums']['attempt_status'];
+          target_assumption_id?: string | null;
+          topic_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'joke_attempts_selected_reinterpretation_fkey';
+            columns: ['selected_reinterpretation_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'reinterpretations';
+            referencedColumns: ['id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'joke_attempts_setup_id_user_id_fkey';
+            columns: ['setup_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'setups';
+            referencedColumns: ['id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'joke_attempts_target_assumption_id_user_id_fkey';
+            columns: ['target_assumption_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'assumptions';
+            referencedColumns: ['id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'joke_attempts_topic_id_user_id_fkey';
+            columns: ['topic_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'topic_stats';
+            referencedColumns: ['topic_id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'joke_attempts_topic_id_user_id_fkey';
+            columns: ['topic_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'topics';
+            referencedColumns: ['id', 'user_id'];
+          },
+        ];
+      };
       profiles: {
         Row: {
           created_at: string;
@@ -85,6 +230,58 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      reinterpretations: {
+        Row: {
+          attempt_id: string;
+          created_at: string;
+          deleted_at: string | null;
+          id: string;
+          is_starred: boolean;
+          sort_order: number;
+          text: string;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          attempt_id: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          id?: string;
+          is_starred?: boolean;
+          sort_order?: number;
+          text: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          attempt_id?: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          id?: string;
+          is_starred?: boolean;
+          sort_order?: number;
+          text?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'reinterpretations_attempt_id_user_id_fkey';
+            columns: ['attempt_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'drafts_feed';
+            referencedColumns: ['attempt_id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'reinterpretations_attempt_id_user_id_fkey';
+            columns: ['attempt_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'joke_attempts';
+            referencedColumns: ['id', 'user_id'];
+          },
+        ];
       };
       setups: {
         Row: {
@@ -205,6 +402,44 @@ export type Database = {
       };
     };
     Views: {
+      drafts_feed: {
+        Row: {
+          attempt_id: string;
+          current_step: Database['public']['Enums']['attempt_step'];
+          last_step_at: string;
+          setup_id: string;
+          setup_text: string;
+          target_text: string | null;
+          topic_id: string;
+          topic_title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: 'joke_attempts_setup_id_user_id_fkey';
+            columns: ['setup_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'setups';
+            referencedColumns: ['id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'joke_attempts_topic_id_user_id_fkey';
+            columns: ['topic_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'topic_stats';
+            referencedColumns: ['topic_id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'joke_attempts_topic_id_user_id_fkey';
+            columns: ['topic_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'topics';
+            referencedColumns: ['id', 'user_id'];
+          },
+        ];
+      };
       topic_stats: {
         Row: {
           association_count: number | null;
@@ -215,6 +450,7 @@ export type Database = {
           status: Database['public']['Enums']['topic_status'];
           title: string;
           topic_id: string;
+          unfinished_attempt_count: number | null;
           user_id: string;
         };
         ComputedFields: never;
@@ -227,6 +463,7 @@ export type Database = {
           status?: Database['public']['Enums']['topic_status'] | null;
           title?: string | null;
           topic_id?: string | null;
+          unfinished_attempt_count?: never;
           user_id?: string | null;
         };
         Update: {
@@ -238,6 +475,7 @@ export type Database = {
           status?: Database['public']['Enums']['topic_status'] | null;
           title?: string | null;
           topic_id?: string | null;
+          unfinished_attempt_count?: never;
           user_id?: string | null;
         };
         Relationships: [];
@@ -247,6 +485,8 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
+      attempt_status: 'in_progress' | 'completed' | 'abandoned' | 'archived';
+      attempt_step: 'target' | 'connector' | 'reinterpretations' | 'choose' | 'second_story' | 'punch' | 'review';
       setup_status: 'active' | 'archived';
       topic_status: 'active' | 'archived';
     };
@@ -356,6 +596,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      attempt_status: ['in_progress', 'completed', 'abandoned', 'archived'],
+      attempt_step: ['target', 'connector', 'reinterpretations', 'choose', 'second_story', 'punch', 'review'],
       setup_status: ['active', 'archived'],
       topic_status: ['active', 'archived'],
     },

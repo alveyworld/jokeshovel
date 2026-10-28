@@ -33,16 +33,47 @@ describe('Outbox', () => {
     expect(box.getSnapshot()).toMatchObject({ state: 'saved', pending: 0 });
   });
 
-  it('keeps an insert as an insert when later edits are merged in, and preserves order', async () => {
+  it('keeps inserts in order and sends later edits to an unsaved row after it', async () => {
     const { calls, executor } = recorder();
     const box = new Outbox(memoryStorage(), executor, { debounceMs: 10 });
     box.insert('topics', 't1', { title: 'Air' });
     box.insert('setups', 's1', { topic_id: 't1', text: '' });
     box.update('topics', 't1', { title: 'Airports' });
+    expect(box.pending().get('topics:t1')).toMatchObject({ kind: 'insert', values: { title: 'Airports' } });
     await vi.advanceTimersByTimeAsync(10);
     expect(calls.map((c) => [c.key, c.kind, c.values])).toEqual([
-      ['topics:t1', 'insert', { title: 'Airports' }],
+      ['topics:t1', 'insert', { title: 'Air' }],
       ['setups:s1', 'insert', { topic_id: 't1', text: '' }],
+      ['topics:t1', 'update', { title: 'Airports' }],
+    ]);
+  });
+
+  it('writes an edit that refers to a newer row after that row (e.g. choosing a new target)', async () => {
+    const { calls, executor } = recorder();
+    const box = new Outbox(memoryStorage(), executor, { debounceMs: 10 });
+    box.update('joke_attempts', 'a1', { current_step: 'target' });
+    box.insert('assumptions', 'x1', { setup_id: 's1', text: 'The speaker is a passenger.' });
+    box.update('joke_attempts', 'a1', { target_assumption_id: 'x1' });
+    await vi.advanceTimersByTimeAsync(10);
+    expect(calls.map((c) => [c.key, c.kind, c.values])).toEqual([
+      ['assumptions:x1', 'insert', { setup_id: 's1', text: 'The speaker is a passenger.' }],
+      ['joke_attempts:a1', 'update', { current_step: 'target', target_assumption_id: 'x1' }],
+    ]);
+  });
+
+  it('keeps that order when the first write is retried', async () => {
+    const { calls, executor } = recorder([{ ok: false, retryable: true, message: 'offline' }]);
+    const box = new Outbox(memoryStorage(), executor, { debounceMs: 10, retryDelaysMs: [100] });
+    box.insert('joke_attempts', 'a1', { setup_id: 's1' });
+    await vi.advanceTimersByTimeAsync(10);
+    box.insert('reinterpretations', 'r1', { attempt_id: 'a1', text: 'flight of stairs' });
+    box.update('joke_attempts', 'a1', { selected_reinterpretation_id: 'r1' });
+    await vi.advanceTimersByTimeAsync(100);
+    expect(calls.map((c) => [c.key, c.kind])).toEqual([
+      ['joke_attempts:a1', 'insert'],
+      ['joke_attempts:a1', 'insert'],
+      ['reinterpretations:r1', 'insert'],
+      ['joke_attempts:a1', 'update'],
     ]);
   });
 
@@ -131,6 +162,18 @@ describe('Outbox', () => {
     box.setExecutor(executor);
     await vi.advanceTimersByTimeAsync(0);
     expect(calls).toHaveLength(1);
+  });
+
+  it('keeps a saved change visible for a while, so an older fetch cannot hide it', async () => {
+    const { executor } = recorder();
+    const box = new Outbox(memoryStorage(), executor, { debounceMs: 10, recentMs: 5000 });
+    box.insert('assumptions', 'x1', { setup_id: 's1', text: 'The speaker is a passenger.' });
+    await vi.advanceTimersByTimeAsync(10);
+    expect(box.size).toBe(0);
+    expect(box.getSnapshot().state).toBe('saved');
+    expect(box.pending().get('assumptions:x1')).toMatchObject({ kind: 'insert' });
+    await vi.advanceTimersByTimeAsync(5001);
+    expect(box.pending().has('assumptions:x1')).toBe(false);
   });
 
   it('flushAll writes everything immediately', async () => {

@@ -8,6 +8,7 @@ import { SaveIndicator } from './SaveIndicator';
 const NAV = [
   { to: '/', label: 'Home', icon: '⛏', end: true },
   { to: '/topics', label: 'Topics', icon: '⛰', end: false },
+  { to: '/drafts', label: 'Drafts', icon: '✎', end: false },
   { to: '/settings', label: 'Settings', icon: '⚙', end: false },
 ];
 
