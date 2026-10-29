@@ -12,4 +12,5 @@ export const LIMITS = {
   reinterpretation: 300,
   secondStory: 4000,
   punch: 1000,
+  jokeTitle: 120,
 } as const;

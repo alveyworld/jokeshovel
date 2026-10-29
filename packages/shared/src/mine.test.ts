@@ -38,7 +38,8 @@ describe('connector word chips', () => {
 describe('isMineStep', () => {
   it('recognises step keys', () => {
     expect(isMineStep('connector')).toBe(true);
-    expect(isMineStep('review')).toBe(false);
+    expect(isMineStep('review')).toBe(true);
+    expect(isMineStep('publish')).toBe(false);
     expect(isMineStep(undefined)).toBe(false);
   });
 });

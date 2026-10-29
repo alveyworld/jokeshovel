@@ -601,6 +601,8 @@ Indexes: `(user_id, status, updated_at desc)` for Drafts and Resume, `(setup_id)
 
 Indexes: `(user_id, status, completed_at desc)`, `(topic_id)`, GIN trigram on `setup_text`, `punch_text`, `title`.
 
+*As built (Phase 3):* jokes are created only by `complete_attempt()`, which locks the attempt row, snapshots the dig path and marks the attempt completed in one transaction, returning the existing joke on a retry. That makes completion safe across devices without a `version` column. `search_all()` also uses trigram indexes on `setups.text`, `topics.title`, `associations.text` and `joke_attempts.punch`.
+
 #### `tags`, `topic_tags`, `joke_tags` (Phase 5)
 - `tags(id, user_id, name ≤ 40, color, created_at)` with a unique index on `(user_id, lower(name))`.
 - `topic_tags(topic_id, tag_id, user_id)` and `joke_tags(joke_id, tag_id, user_id)`. The PK is the pair of ids. Composite ownership FKs as above.
@@ -1078,6 +1080,9 @@ Each phase ends with something deployed and usable. Sprints are 2 weeks for one 
 - **Risks:** too much on one screen. Mitigate with a design review of the step panels on a 360 px viewport before building.
 
 ### Phase 3 — Completed jokes (Sprint 4)
+
+> **Status (2026-10-29):** built and tested locally. See [`phase-3-review.md`](phase-3-review.md).
+
 - **Goal:** collect, review, and find finished jokes.
 - **Features:** Review page, `complete_attempt` RPC, joke detail and edit, favorites and rating, Jokes tab, search (trigram) and filters, stats page, completion %.
 - **Database changes:** `jokes`, `complete_attempt()`, `search_all()`, `topic_stats` v3 (completed and completion %), trigram indexes.

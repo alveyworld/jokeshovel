@@ -3,14 +3,16 @@ import type {
   Association,
   AttemptStep,
   DraftRow,
+  Joke,
   JokeAttempt,
   LastLocation,
   Profile,
   Reinterpretation,
+  SearchResult,
   Setup,
   Topic,
 } from '@jokeshovel/shared';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import { useUser } from '../auth/AuthProvider';
 import type { PendingOp, TableName, Values } from '../lib/outbox/outbox';
@@ -21,6 +23,7 @@ import {
   newAssociationRow,
   newAssumptionRow,
   newAttemptRow,
+  newJokeRow,
   newReinterpretationRow,
   newSetupRow,
   newSummaryRow,
@@ -71,6 +74,9 @@ export function useTopicSummaries() {
         association_count: r.association_count ?? 0,
         setup_count: r.setup_count ?? 0,
         unfinished_attempt_count: r.unfinished_attempt_count ?? 0,
+        completed_joke_count: r.completed_joke_count ?? 0,
+        setups_with_joke_count: r.setups_with_joke_count ?? 0,
+        completion_percent: r.completion_percent,
       }));
     },
   });
@@ -247,6 +253,100 @@ export function useDrafts() {
   return { ...query, drafts };
 }
 
+/** Every joke in the collection, newest first (soft-deleted ones too, for Undo). */
+export function useJokes() {
+  const pending = usePending();
+  const query = useQuery({
+    queryKey: ['jokes', 'all'],
+    queryFn: async () => unwrap(await supabase.from('jokes').select('*')) as Joke[],
+  });
+  const jokes = useMemo(
+    () =>
+      overlay(query.data, pending, 'jokes', () => null)
+        .filter(isLive)
+        .sort((a, b) => b.completed_at.localeCompare(a.completed_at)),
+    [query.data, pending],
+  );
+  return { ...query, jokes };
+}
+
+export function useJoke(jokeId: string) {
+  const user = useUser();
+  const { row, ...rest } = useSingle<Joke>('joke', 'jokes', jokeId, (op) => newJokeRow(op, user.id));
+  return { ...rest, joke: row };
+}
+
+/** The completed joke an attempt produced, if any. */
+export function useAttemptJoke(attemptId: string) {
+  return useQuery({
+    queryKey: ['jokes', 'attempt', attemptId],
+    queryFn: async () =>
+      unwrap(await supabase.from('jokes').select('id, title').eq('attempt_id', attemptId).maybeSingle()),
+  });
+}
+
+export type CompleteResult = { ok: true; joke: Joke } | { ok: false; message: string };
+
+/**
+ * Turns an attempt into a completed joke. Saves any queued edits first so the
+ * joke snapshots exactly what's on screen; the server does the rest in one
+ * transaction and never creates a second joke for the same attempt.
+ */
+export function useCompleteAttempt() {
+  const box = useOutbox();
+  const qc = useQueryClient();
+  return useCallback(
+    async (attemptId: string, title: string): Promise<CompleteResult> => {
+      await box.flushAll();
+      if (box.size > 0) {
+        return {
+          ok: false,
+          message: 'You’re offline. Your work is saved on this device; complete the joke once you’re back online.',
+        };
+      }
+      const { data, error } = await supabase.rpc('complete_attempt', { p_attempt_id: attemptId, p_title: title });
+      if (error || !data) return { ok: false, message: error?.message ?? 'Couldn’t complete the joke. Try again.' };
+      for (const key of ['jokes', 'joke_attempt', 'joke_attempts', 'drafts', 'topic_stats', 'stats']) {
+        void qc.invalidateQueries({ queryKey: [key] });
+      }
+      return { ok: true, joke: data as Joke };
+    },
+    [box, qc],
+  );
+}
+
+/** Search across jokes, drafts, setups, topics and associations. */
+export function useSearch(term: string) {
+  const q = term.trim();
+  return useQuery({
+    queryKey: ['search', q],
+    enabled: q.length >= 2,
+    staleTime: 0,
+    // Keep the last results on screen while the next search runs.
+    placeholderData: (previous) => previous,
+    queryFn: async () => (unwrap(await supabase.rpc('search_all', { q })) ?? []) as SearchResult[],
+  });
+}
+
+export interface StatsTimeline {
+  setups: { topic_id: string; created_at: string }[];
+  attempts: { topic_id: string; status: JokeAttempt['status']; created_at: string }[];
+}
+
+/** Raw dates for the stats page's weekly charts and totals. */
+export function useStatsTimeline() {
+  return useQuery({
+    queryKey: ['stats'],
+    queryFn: async (): Promise<StatsTimeline> => {
+      const [setups, attempts] = await Promise.all([
+        supabase.from('setups').select('topic_id, created_at').is('deleted_at', null),
+        supabase.from('joke_attempts').select('topic_id, status, created_at').is('deleted_at', null),
+      ]);
+      return { setups: unwrap(setups) ?? [], attempts: unwrap(attempts) ?? [] };
+    },
+  });
+}
+
 export function useProfile() {
   const user = useUser();
   const pending = usePending();
@@ -322,9 +422,11 @@ export function useMutations() {
         box.update(table, id, { deleted_at: null });
         box.flushSoon();
       },
-      setArchived(table: 'topics' | 'setups', id: string, archived: boolean) {
+      setArchived(table: 'topics' | 'setups' | 'jokes', id: string, archived: boolean) {
+        // A joke's live status is 'complete'; topics and setups use 'active'.
+        const live = table === 'jokes' ? 'complete' : 'active';
         box.update(table, id, {
-          status: archived ? 'archived' : 'active',
+          status: archived ? 'archived' : live,
           archived_at: archived ? new Date().toISOString() : null,
         });
         box.flushSoon();

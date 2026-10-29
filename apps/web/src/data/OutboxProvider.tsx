@@ -67,6 +67,7 @@ export function OutboxProvider({ children }: { children: ReactNode }) {
         onDrained: (tables) => {
           void qc.invalidateQueries({ queryKey: ['topic_stats'] });
           void qc.invalidateQueries({ queryKey: ['drafts'] });
+          if (tables.has('setups') || tables.has('joke_attempts')) void qc.invalidateQueries({ queryKey: ['stats'] });
           for (const table of tables) {
             if (table === 'profiles') continue;
             void qc.invalidateQueries({ queryKey: [table] });

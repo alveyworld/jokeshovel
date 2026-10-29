@@ -14,7 +14,7 @@
  */
 
 export type TableName =
-  'profiles' | 'topics' | 'associations' | 'setups' | 'assumptions' | 'joke_attempts' | 'reinterpretations';
+  'profiles' | 'topics' | 'associations' | 'setups' | 'assumptions' | 'joke_attempts' | 'reinterpretations' | 'jokes';
 export type OpKind = 'insert' | 'update';
 export type Values = Record<string, unknown>;
 

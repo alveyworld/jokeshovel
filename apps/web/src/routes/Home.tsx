@@ -2,15 +2,30 @@ import { Link } from 'react-router';
 import shovel from '../assets/brand/shovel.png';
 import { NewTopicForm } from '../components/NewTopicForm';
 import { StatChips } from '../components/StatChips';
-import { useDrafts, useProfile, useTopicSummaries } from '../data/hooks';
-import { DraftCard } from './Drafts';
+import { useDrafts, useJokes, useProfile, useStatsTimeline, useTopicSummaries } from '../data/hooks';
+import { countThisWeek } from '../lib/stats';
 import { relativeTime } from '../lib/time';
+import { DraftCard } from './Drafts';
 
 export function Home() {
   const { topics, isPending } = useTopicSummaries();
   const { lastLocation } = useProfile();
   const { drafts } = useDrafts();
+  const { jokes } = useJokes();
+  const { data: timeline } = useStatsTimeline();
   const recent = topics.filter((t) => t.status === 'active').slice(0, 3);
+  const live = new Set(topics.map((t) => t.id));
+  const haul = [
+    { label: 'Jokes in all', value: topics.reduce((n, t) => n + t.completed_joke_count, 0) },
+    {
+      label: 'Setups this week',
+      value: countThisWeek((timeline?.setups ?? []).filter((x) => live.has(x.topic_id)).map((x) => x.created_at)),
+    },
+    {
+      label: 'Jokes this week',
+      value: countThisWeek(jokes.filter((j) => live.has(j.topic_id)).map((j) => j.completed_at)),
+    },
+  ];
 
   return (
     <div className="page">
@@ -44,6 +59,23 @@ export function Home() {
               </li>
             ))}
           </ul>
+        </section>
+      ) : null}
+
+      {topics.length ? (
+        <section aria-labelledby="haul-heading">
+          <div className="section-head">
+            <h2 id="haul-heading">Your haul</h2>
+            <Link to="/stats">See stats</Link>
+          </div>
+          <dl className="tiles tiles--compact">
+            {haul.map((t) => (
+              <div key={t.label} className="tile">
+                <dt>{t.label}</dt>
+                <dd>{t.value}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
       ) : null}
 

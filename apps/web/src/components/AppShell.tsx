@@ -9,7 +9,27 @@ const NAV = [
   { to: '/', label: 'Home', icon: '⛏', end: true },
   { to: '/topics', label: 'Topics', icon: '⛰', end: false },
   { to: '/drafts', label: 'Drafts', icon: '✎', end: false },
-  { to: '/settings', label: 'Settings', icon: '⚙', end: false },
+  { to: '/jokes', label: 'Jokes', icon: '◆', end: false },
+];
+
+const SEARCH_ICON = (
+  <svg
+    viewBox="0 0 24 24"
+    width="22"
+    height="22"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+  >
+    <circle cx="10" cy="10" r="6.5" />
+    <path d="M15 15l6 6" />
+  </svg>
+);
+
+const TOOLS = [
+  { to: '/search', label: 'Search', icon: SEARCH_ICON },
+  { to: '/settings', label: 'Settings', icon: '⚙' },
 ];
 
 export function AppShell() {
@@ -26,6 +46,14 @@ export function AppShell() {
           <img src={wordmarkLight} alt="The Joke Shovel" className="brand__wordmark" width={54} height={34} />
         </NavLink>
         <SaveIndicator snapshot={snapshot} onRetry={() => box.retryNow()} />
+        <nav aria-label="Tools" className="topbar__tools">
+          {TOOLS.map((item) => (
+            <NavLink key={item.to} to={item.to} className="topbar__tool" title={item.label}>
+              <span aria-hidden="true">{item.icon}</span>
+              <span className="visually-hidden">{item.label}</span>
+            </NavLink>
+          ))}
+        </nav>
       </header>
       <nav className="tabs" aria-label="Main">
         <ul>
