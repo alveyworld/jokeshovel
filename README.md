@@ -32,13 +32,15 @@ cp apps/web/.env.example apps/web/.env.local     # fill in ANON_KEY from `pnpm e
 pnpm dev                 # http://localhost:5173
 ```
 
+After pulling new code, run `pnpm install` and `pnpm db:migrate`. `pnpm db:start` only applies migrations when it first creates the database, so without `db:migrate` new features fail with errors like "Could not find the function … in the schema cache".
+
 Full instructions, production setup, deploys, rollback and backups: [`docs/RUNBOOK.md`](docs/RUNBOOK.md).
 
 ## Docs
 
 - [`docs/DESIGN.md`](docs/DESIGN.md): product, UX, data model, auth, Keep publishing, architecture, phases, user stories
 - [`docs/RUNBOOK.md`](docs/RUNBOOK.md): running, deploying, restoring
-- [`docs/sprint-1-review.md`](docs/sprint-1-review.md), [`docs/phase-2-review.md`](docs/phase-2-review.md): what each phase delivered
+- [`docs/sprint-1-review.md`](docs/sprint-1-review.md), [`docs/phase-2-review.md`](docs/phase-2-review.md), [`docs/phase-3-review.md`](docs/phase-3-review.md): what each phase delivered
 
 ## Stack
 
