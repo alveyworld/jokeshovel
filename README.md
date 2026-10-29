@@ -8,8 +8,9 @@ Built and tested locally; **not deployed yet** (needs the one-time account setup
 
 - **Sprint 1:** Google sign-in, topics, association lists, setups, autosave that survives closed tabs and lost connections, topic counts, and "Resume digging".
 - **Phase 2, the Joke Mine:** list a setup's assumptions, then take a joke attempt step by step: target, connector (tap words in the setup), reinterpretations, choice, second story, punch. Multiple attempts per setup, a "thread so far" panel, and a Drafts tab.
+- **Phase 3, completed jokes:** a Review step that turns an attempt into a joke with a suggested title, an editable joke card with favorites and ratings, a Jokes tab with filters, typo-tolerant search across everything, and a Stats page with completion %, weekly charts and stuck drafts.
 
-Next: Phase 3, reviewing and completing jokes.
+Next: Phase 4, sending jokes to Google Keep.
 
 ## Repository layout
 

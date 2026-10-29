@@ -42,6 +42,9 @@ export function TopicDetail() {
       is_favorite: topic.is_favorite,
       last_activity_at: topic.last_activity_at,
       unfinished_attempt_count: 0,
+      completed_joke_count: 0,
+      setups_with_joke_count: 0,
+      completion_percent: null,
     }),
     association_count: associations.length,
     setup_count: setups.filter((s) => s.status === 'active').length,
@@ -117,6 +120,9 @@ export function TopicDetail() {
         </NavLink>
         <NavLink to="setups" className="subtabs__link">
           Setups <span className="subtabs__count">{stats.setup_count}</span>
+        </NavLink>
+        <NavLink to="jokes" className="subtabs__link">
+          Jokes <span className="subtabs__count">{stats.completed_joke_count}</span>
         </NavLink>
       </nav>
 

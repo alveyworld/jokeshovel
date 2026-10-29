@@ -8,7 +8,7 @@ import { BrainstormList } from '../BrainstormList';
 import { useToast } from '../Toasts';
 import { WordChips } from './WordChips';
 
-interface PanelProps {
+export interface PanelProps {
   attempt: JokeAttempt;
   setup: Setup | null;
   assumptions: readonly Assumption[];

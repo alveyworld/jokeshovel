@@ -200,6 +200,115 @@ export type Database = {
           },
         ];
       };
+      jokes: {
+        Row: {
+          archived_at: string | null;
+          attempt_id: string | null;
+          completed_at: string;
+          connector_text: string;
+          created_at: string;
+          deleted_at: string | null;
+          id: string;
+          is_favorite: boolean;
+          notes: string;
+          punch_text: string;
+          rating: number | null;
+          reinterpretation_text: string;
+          second_story_text: string;
+          setup_id: string | null;
+          setup_text: string;
+          status: Database['public']['Enums']['joke_status'];
+          target_assumption_text: string;
+          title: string;
+          topic_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          archived_at?: string | null;
+          attempt_id?: string | null;
+          completed_at?: string;
+          connector_text?: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          id?: string;
+          is_favorite?: boolean;
+          notes?: string;
+          punch_text: string;
+          rating?: number | null;
+          reinterpretation_text?: string;
+          second_story_text?: string;
+          setup_id?: string | null;
+          setup_text: string;
+          status?: Database['public']['Enums']['joke_status'];
+          target_assumption_text?: string;
+          title?: string;
+          topic_id: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          archived_at?: string | null;
+          attempt_id?: string | null;
+          completed_at?: string;
+          connector_text?: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          id?: string;
+          is_favorite?: boolean;
+          notes?: string;
+          punch_text?: string;
+          rating?: number | null;
+          reinterpretation_text?: string;
+          second_story_text?: string;
+          setup_id?: string | null;
+          setup_text?: string;
+          status?: Database['public']['Enums']['joke_status'];
+          target_assumption_text?: string;
+          title?: string;
+          topic_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'jokes_attempt_id_user_id_fkey';
+            columns: ['attempt_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'drafts_feed';
+            referencedColumns: ['attempt_id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'jokes_attempt_id_user_id_fkey';
+            columns: ['attempt_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'joke_attempts';
+            referencedColumns: ['id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'jokes_setup_id_user_id_fkey';
+            columns: ['setup_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'setups';
+            referencedColumns: ['id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'jokes_topic_id_user_id_fkey';
+            columns: ['topic_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'topic_stats';
+            referencedColumns: ['topic_id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'jokes_topic_id_user_id_fkey';
+            columns: ['topic_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'topics';
+            referencedColumns: ['id', 'user_id'];
+          },
+        ];
+      };
       profiles: {
         Row: {
           created_at: string;
@@ -443,10 +552,13 @@ export type Database = {
       topic_stats: {
         Row: {
           association_count: number | null;
+          completed_joke_count: number | null;
+          completion_percent: number | null;
           description: string;
           is_favorite: boolean;
           last_activity_at: string;
           setup_count: number | null;
+          setups_with_joke_count: number | null;
           status: Database['public']['Enums']['topic_status'];
           title: string;
           topic_id: string;
@@ -454,39 +566,59 @@ export type Database = {
           user_id: string;
         };
         ComputedFields: never;
-        Insert: {
-          association_count?: never;
-          description?: string | null;
-          is_favorite?: boolean | null;
-          last_activity_at?: string | null;
-          setup_count?: never;
-          status?: Database['public']['Enums']['topic_status'] | null;
-          title?: string | null;
-          topic_id?: string | null;
-          unfinished_attempt_count?: never;
-          user_id?: string | null;
-        };
-        Update: {
-          association_count?: never;
-          description?: string | null;
-          is_favorite?: boolean | null;
-          last_activity_at?: string | null;
-          setup_count?: never;
-          status?: Database['public']['Enums']['topic_status'] | null;
-          title?: string | null;
-          topic_id?: string | null;
-          unfinished_attempt_count?: never;
-          user_id?: string | null;
-        };
         Relationships: [];
       };
     };
     Functions: {
-      [_ in never]: never;
+      complete_attempt: {
+        Args: { p_attempt_id: string; p_title?: string };
+        Returns: {
+          archived_at: string | null;
+          attempt_id: string | null;
+          completed_at: string;
+          connector_text: string;
+          created_at: string;
+          deleted_at: string | null;
+          id: string;
+          is_favorite: boolean;
+          notes: string;
+          punch_text: string;
+          rating: number | null;
+          reinterpretation_text: string;
+          second_story_text: string;
+          setup_id: string | null;
+          setup_text: string;
+          status: Database['public']['Enums']['joke_status'];
+          target_assumption_text: string;
+          title: string;
+          topic_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'jokes';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      search_all: {
+        Args: { q: string };
+        Returns: {
+          id: string;
+          kind: string;
+          score: number;
+          snippet: string;
+          title: string;
+          topic_id: string;
+          topic_title: string;
+        }[];
+      };
     };
     Enums: {
       attempt_status: 'in_progress' | 'completed' | 'abandoned' | 'archived';
       attempt_step: 'target' | 'connector' | 'reinterpretations' | 'choose' | 'second_story' | 'punch' | 'review';
+      joke_status: 'complete' | 'archived';
       setup_status: 'active' | 'archived';
       topic_status: 'active' | 'archived';
     };
@@ -598,6 +730,7 @@ export const Constants = {
     Enums: {
       attempt_status: ['in_progress', 'completed', 'abandoned', 'archived'],
       attempt_step: ['target', 'connector', 'reinterpretations', 'choose', 'second_story', 'punch', 'review'],
+      joke_status: ['complete', 'archived'],
       setup_status: ['active', 'archived'],
       topic_status: ['active', 'archived'],
     },

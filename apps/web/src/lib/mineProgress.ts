@@ -7,6 +7,7 @@ export interface MineProgress {
   hasChoice: boolean;
   secondStory: string;
   punch: string;
+  completed: boolean;
 }
 
 export type StepStatus = 'done' | 'current' | 'skipped' | 'todo';
@@ -25,6 +26,8 @@ export function stepDone(key: MineStepKey, p: MineProgress): boolean {
       return p.secondStory.trim().length > 0;
     case 'punch':
       return p.punch.trim().length > 0;
+    case 'review':
+      return p.completed;
   }
 }
 

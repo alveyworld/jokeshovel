@@ -132,7 +132,7 @@ test('topics can be renamed, archived and deleted with undo (AC-3)', async ({ pa
 
 test('sign out returns to sign-in and protects routes (AC-2)', async ({ page }) => {
   await signIn(page);
-  await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Settings' }).click();
+  await page.getByRole('navigation', { name: 'Tools' }).getByRole('link', { name: 'Settings' }).click();
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeVisible();
   await page.goto('/topics');
@@ -165,7 +165,7 @@ test('no serious accessibility violations on Sprint 1 screens (AC-X1)', async ({
   await check('setups');
   await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Topics' }).click();
   await check('topics');
-  await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Settings' }).click();
+  await page.getByRole('navigation', { name: 'Tools' }).getByRole('link', { name: 'Settings' }).click();
   await check('settings');
 });
 

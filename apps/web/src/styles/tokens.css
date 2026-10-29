@@ -39,6 +39,12 @@
   --toast-bg: #2b241d;
   --toast-text: #fbf7e4;
 
+  /* Charts: one sequential hue (checked with the dataviz palette validator
+     against --surface in each theme), a lifted step for hover, hairline grid. */
+  --chart-1: #a84f1c;
+  --chart-1-hover: #c8682e;
+  --chart-grid: #e6dfae;
+
   --radius: 6px;
   --radius-small: 4px;
   --space-1: 0.25rem;
@@ -86,6 +92,9 @@
     --focus: #8ab8f5;
     --toast-bg: #f3eed6;
     --toast-text: #1e1d20;
+    --chart-1: #d27a2c;
+    --chart-1-hover: #bd6823; /* the light step is out of band on the dark surface */
+    --chart-grid: #45412f;
     --shadow: none;
   }
 }

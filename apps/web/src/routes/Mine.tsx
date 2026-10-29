@@ -9,6 +9,7 @@ import {
   SecondStoryPanel,
   TargetPanel,
 } from '../components/mine/Panels';
+import { ReviewPanel } from '../components/mine/ReviewPanel';
 import { Stepper } from '../components/mine/Stepper';
 import { Thread } from '../components/mine/Thread';
 import { useAssumptions, useAttempt, useMutations, useReinterpretations, useSetup, useTopic } from '../data/hooks';
@@ -23,6 +24,7 @@ const PANELS = {
   choose: ChoosePanel,
   second_story: SecondStoryPanel,
   punch: PunchPanel,
+  review: ReviewPanel,
 } as const;
 
 export function Mine() {
@@ -79,6 +81,7 @@ function MineBody({ attempt, step }: { attempt: JokeAttempt; step: MineStepKey }
       hasChoice: Boolean(chosen),
       secondStory: attempt.second_story,
       punch: attempt.punch,
+      completed: attempt.status === 'completed',
     },
     step,
   );
@@ -141,14 +144,11 @@ function MineBody({ attempt, step }: { attempt: JokeAttempt; step: MineStepKey }
             Next: {next.label} <span aria-hidden="true">›</span>
           </Link>
         ) : (
-          <Link to={`/s/${attempt.setup_id}`} className="btn btn--primary">
-            Done for now <span aria-hidden="true">›</span>
+          <Link to={`/s/${attempt.setup_id}`} className="btn">
+            Back to the setup <span aria-hidden="true">›</span>
           </Link>
         )}
       </nav>
-      {!next ? (
-        <p className="field__hint">Reviewing and completing jokes arrives in the next phase. Your punch is saved.</p>
-      ) : null}
     </div>
   );
 }

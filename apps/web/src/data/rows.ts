@@ -1,4 +1,4 @@
-import type { Assumption, Association, JokeAttempt, Reinterpretation, Setup, Topic } from '@jokeshovel/shared';
+import type { Assumption, Association, Joke, JokeAttempt, Reinterpretation, Setup, Topic } from '@jokeshovel/shared';
 import type { PendingOp } from '../lib/outbox/outbox';
 
 /** A topic plus its counts, as shown on cards. Mirrors the topic_stats view. */
@@ -12,6 +12,11 @@ export interface TopicSummary {
   association_count: number;
   setup_count: number;
   unfinished_attempt_count: number;
+  completed_joke_count: number;
+  /** Active setups with at least one completed joke (numerator of completion %). */
+  setups_with_joke_count: number;
+  /** Setups that produced a completed joke ÷ active setups; null with no setups. */
+  completion_percent: number | null;
   deleted_at?: string | null;
 }
 
@@ -45,6 +50,9 @@ export function newSummaryRow(op: PendingOp): TopicSummary {
     association_count: 0,
     setup_count: 0,
     unfinished_attempt_count: 0,
+    completed_joke_count: 0,
+    setups_with_joke_count: 0,
+    completion_percent: null,
     last_activity_at: op.queuedAt,
     ...op.values,
     id: op.id,
@@ -139,6 +147,33 @@ export function newReinterpretationRow(op: PendingOp, userId: string): Reinterpr
   } as Reinterpretation;
 }
 
+export function newJokeRow(op: PendingOp, userId: string): Joke {
+  return {
+    id: op.id,
+    user_id: userId,
+    topic_id: '',
+    setup_id: null,
+    attempt_id: null,
+    title: '',
+    setup_text: '',
+    punch_text: '',
+    target_assumption_text: '',
+    connector_text: '',
+    reinterpretation_text: '',
+    second_story_text: '',
+    notes: '',
+    status: 'complete',
+    is_favorite: false,
+    rating: null,
+    completed_at: op.queuedAt,
+    created_at: op.queuedAt,
+    updated_at: op.queuedAt,
+    archived_at: null,
+    deleted_at: null,
+    ...op.values,
+  } as Joke;
+}
+
 /** Child tables: the column that links each row to the list it appears in. */
 export const LIST_PARENT = {
   associations: 'topic_id',
@@ -146,6 +181,7 @@ export const LIST_PARENT = {
   assumptions: 'setup_id',
   joke_attempts: 'setup_id',
   reinterpretations: 'attempt_id',
+  jokes: 'topic_id',
 } as const;
 
 export const LIST_BUILDERS = {
@@ -154,6 +190,7 @@ export const LIST_BUILDERS = {
   assumptions: newAssumptionRow,
   joke_attempts: newAttemptRow,
   reinterpretations: newReinterpretationRow,
+  jokes: newJokeRow,
 } as const;
 
 /** Query-key names for single-row caches, e.g. ['joke_attempt', id]. */
@@ -161,12 +198,14 @@ export const SINGLE_KEY = {
   topics: 'topics',
   setups: 'setup',
   joke_attempts: 'joke_attempt',
+  jokes: 'joke',
 } as const;
 
 export const SINGLE_BUILDERS = {
   topics: newTopicRow,
   setups: newSetupRow,
   joke_attempts: newAttemptRow,
+  jokes: newJokeRow,
 } as const;
 
 /** Fractional ordering: a value after every existing item. */

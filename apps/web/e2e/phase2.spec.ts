@@ -1,30 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
-import { createTopic, signIn, waitForSaved } from './helpers';
-
-const SETUP = 'My flight had a six-hour layover.';
-
-/** Topic → one setup → the setup's Mine page. */
-async function openSetup(page: Page, topic = 'Airports', setup = SETUP) {
-  await createTopic(page, topic);
-  await page.getByRole('link', { name: /Setups/ }).click();
-  await page.getByRole('button', { name: '+ New setup' }).click();
-  await page.getByRole('textbox', { name: 'Setup 1', exact: true }).fill(setup);
-  await page.getByRole('link', { name: 'Mine this setup — Setup 1' }).click();
-  await expect(page.getByRole('heading', { name: 'Mine this setup' })).toBeVisible();
-}
-
-async function addItems(page: Page, inputName: string, items: string[]) {
-  const input = page.getByRole('textbox', { name: inputName, exact: true });
-  for (const item of items) {
-    await input.fill(item);
-    await input.press('Enter');
-  }
-}
-
-const next = (page: Page, label: string) => page.getByRole('link', { name: `Next: ${label}` }).click();
-const stepLink = (page: Page, label: string) =>
-  page.getByRole('navigation', { name: 'Joke Mine steps' }).getByRole('link', { name: new RegExp(`^${label}`) });
+import { expect, test } from '@playwright/test';
+import { SETUP, addItems, next, openSetup, signIn, stepLink, waitForSaved } from './helpers';
 
 test('golden path: setup → assumptions → target → connector → reinterpretations → punch (AC-9, AC-11, AC-13, AC-14)', async ({
   page,

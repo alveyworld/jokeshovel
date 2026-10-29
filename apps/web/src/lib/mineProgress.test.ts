@@ -8,6 +8,7 @@ const empty: MineProgress = {
   hasChoice: false,
   secondStory: '',
   punch: '',
+  completed: false,
 };
 
 describe('stepStatuses', () => {
@@ -19,6 +20,7 @@ describe('stepStatuses', () => {
       choose: 'todo',
       second_story: 'todo',
       punch: 'todo',
+      review: 'todo',
     });
   });
 

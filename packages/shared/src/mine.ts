@@ -1,6 +1,6 @@
 /**
- * The Joke Mine: the steps that take one setup to a punch (steps 6–11 of the
- * 12-step flow in docs/DESIGN.md). Help text is written for The Joke Shovel,
+ * The Joke Mine: the steps that take one setup to a finished joke (steps
+ * 6–12 of the flow in docs/DESIGN.md). Help text is written for The Joke Shovel,
  * not quoted from any book.
  */
 export const MINE_STEPS = [
@@ -45,6 +45,13 @@ export const MINE_STEPS = [
     label: 'Punch',
     heading: 'Write the punch',
     help: 'Reveal the second story in as few words as you can. Try to put the surprise last.',
+  },
+  {
+    key: 'review',
+    number: 12,
+    label: 'Review',
+    heading: 'Review the joke',
+    help: 'Read the setup and punch together. When it works, mark it complete and it joins your jokes.',
   },
 ] as const;
 
