@@ -18,6 +18,19 @@ The Worker (`/api/*`) isn't needed by the app yet. To run it too, in a second
 terminal: `cp worker/.dev.vars.example worker/.dev.vars`, paste the same anon key,
 then `pnpm dev:worker` (builds the web app, then serves it and the API on :8787).
 
+### After pulling new code
+
+```bash
+pnpm install       # new or updated packages
+pnpm db:migrate    # apply new migrations; keeps your local data
+```
+
+`pnpm db:start` applies migrations only when it first creates the local
+database, so later migrations need `pnpm db:migrate`. Skipping it makes new
+features fail with errors like "Could not find the function
+public.complete_attempt(…) in the schema cache" or "Could not find the table
+… in the schema cache". (`pnpm db:reset` also works, but wipes local data.)
+
 Sign in with **Developer sign-in** (email + any password of 6+ characters; the
 account is created on first use). Google login is off locally unless you set it up
 (see `supabase/config.toml`).
@@ -28,6 +41,7 @@ account is created on first use). Google login is off locally unless you set it 
 | `pnpm typecheck`            | TypeScript in every package                                                   |
 | `pnpm test`                 | Unit tests (web outbox, Worker auth and routes)                               |
 | `pnpm db:test`              | pgTAP tests: RLS, ownership, triggers, `topic_stats`                          |
+| `pnpm db:migrate`           | Apply new migrations to the local database, keeping its data                  |
 | `pnpm db:reset`             | Recreate the local database from `supabase/migrations`                        |
 | `pnpm db:types`             | Regenerate `packages/shared/src/database.types.ts` after a migration          |
 | `pnpm e2e`                  | Playwright end-to-end tests (needs `pnpm db:start` and `apps/web/.env.local`) |
