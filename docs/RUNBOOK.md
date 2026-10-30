@@ -44,6 +44,7 @@ account is created on first use). Google login is off locally unless you set it 
 | `pnpm db:migrate`           | Apply new migrations to the local database, keeping its data                  |
 | `pnpm db:reset`             | Recreate the local database from `supabase/migrations`                        |
 | `pnpm db:types`             | Regenerate `packages/shared/src/database.types.ts` after a migration          |
+| `pnpm --filter worker test:int` | Worker REST calls against local Supabase (pass `SUPABASE_INT_URL`, `SUPABASE_INT_ANON_KEY`, `SUPABASE_INT_SERVICE_ROLE_KEY` from `supabase status -o env`; CI does this) |
 | `pnpm e2e`                  | Playwright end-to-end tests (needs `pnpm db:start` and `apps/web/.env.local`) |
 
 ### Adding a migration
@@ -93,6 +94,39 @@ Everything runs on free tiers (docs/DESIGN.md §18.1).
    - Secrets: `SUPABASE_DB_URL` (Session pooler connection string from _Connect_), `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`.
    - Run _Actions → Nightly backup → Run workflow_ once to check it.
 
+6. **Publishing to Keep needs no setup.** Share to Keep and Copy & open Keep run in the browser. Before calling Phase 4 done, check them by hand on real devices:
+   - Android, Chrome: a joke card → **Publish to Keep** → **Share to Keep** → pick Keep. The note opens with the title and body filled in. Save, answer **Yes**, and the card shows "Sent to Keep".
+   - iPhone, Safari (with the Keep app installed): the same. If Keep isn't in the share sheet, tap **More** and enable it.
+   - A computer: **Copy & open Keep** copies the note and opens keep.google.com. Paste into a new note.
+
+### Optional: Google Docs Joke Book
+
+Off by default (`FEATURE_DOCS_SYNC=false`). When on, a **Connect Google** button
+appears in Settings and **Add to Joke Book** in the Publish sheet. It needs a
+second Google OAuth client, separate from the login one (docs/DESIGN.md §8.5).
+
+1. **Google Cloud** (same project as login):
+   - _APIs & Services → Library:_ enable the **Google Docs API**.
+   - _Google Auth Platform → Data access:_ add the scope `https://www.googleapis.com/auth/drive.file`. It isn't a sensitive scope, so no security assessment is needed.
+   - _Clients → Create client → Web application_, named "Joke Shovel integration". Authorized redirect URI: `<APP_BASE_URL>/api/integrations/google/callback` (for local testing also add `http://localhost:8787/api/integrations/google/callback`).
+   - _Audience:_ set publishing status to **In production** and finish brand verification. In "Testing", only listed test users can connect and their access expires after 7 days.
+2. **Worker secrets** (from `worker/`):
+
+   ```bash
+   pnpm exec wrangler secret put SUPABASE_SERVICE_ROLE_KEY         # Supabase → Project settings → API keys (secret)
+   pnpm exec wrangler secret put GOOGLE_INTEGRATION_CLIENT_ID
+   pnpm exec wrangler secret put GOOGLE_INTEGRATION_CLIENT_SECRET
+   openssl rand -base64 32 | pnpm exec wrangler secret put TOKEN_ENCRYPTION_KEY
+   openssl rand -base64 32 | pnpm exec wrangler secret put OAUTH_STATE_SIGNING_KEY
+   ```
+
+3. **GitHub variable** `FEATURE_DOCS_SYNC` = `true`, then re-run **Deploy**. If any secret is missing, the app keeps the feature hidden and Workers Logs show `docs integration is missing secrets` with the missing names (never values).
+4. **Check it** with a consumer Gmail account: Settings → **Connect Google** → allow → back in Settings it says "Connected". Publish a joke with **Add to Joke Book**; a Doc called "The Joke Shovel — Joke Book" appears in Drive with the joke. Then revoke the app at <https://myaccount.google.com/permissions>, publish again, and check you see "Google access expired. Reconnect to publish."
+
+To turn it off again, set `FEATURE_DOCS_SYNC=false` and deploy. Stored connections stay; they work again when it's turned back on.
+
+**Locally:** run the Worker (`pnpm dev:worker`) with the `FEATURE_DOCS_SYNC` block in `worker/.dev.vars` filled in (see `.dev.vars.example`), and open the app at <http://localhost:8787>.
+
 ## Deploying
 
 Merging to `main` runs CI; when CI passes, **Deploy** applies migrations
@@ -135,3 +169,7 @@ Do a restore drill into a scratch project once a quarter.
 | Cloudflare API token       | GitHub secret            | Cloudflare → API tokens → Roll                                                               |
 | R2 keys                    | GitHub secrets           | Cloudflare → R2 → API tokens                                                                 |
 | Backup `age` key           | Offline only             | Generate a new key, update `BACKUP_AGE_RECIPIENT`; keep the old key until its backups expire |
+| `SUPABASE_SERVICE_ROLE_KEY` | Worker secret (Docs Joke Book) | Supabase → API keys → roll the secret key; `wrangler secret put` the new one |
+| Google integration client secret | Worker secret | Google Cloud → Clients → add secret, `wrangler secret put GOOGLE_INTEGRATION_CLIENT_SECRET`, delete old |
+| `TOKEN_ENCRYPTION_KEY`     | Worker secret            | `openssl rand -base64 32 \| wrangler secret put …`. Stored Google tokens can't be read any more, so users reconnect (the app asks them) |
+| `OAUTH_STATE_SIGNING_KEY`  | Worker secret            | Replace any time; only sign-ins in progress at that moment fail |

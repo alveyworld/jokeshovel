@@ -70,6 +70,7 @@ describe('GET /api/me', () => {
     expect(await res.json()).toEqual({
       user: { id: USER_ID, email: 'bea@example.com' },
       profile: { id: USER_ID, display_name: 'Bea' },
+      features: { docsSync: false },
     });
     const headers = fetch.mock.calls[0][1]?.headers as Record<string, string>;
     expect(headers.Authorization).toBe(`Bearer ${token}`);

@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useAuth, useUser } from '../auth/AuthProvider';
 import { AutosaveField } from '../components/AutosaveField';
+import { Integrations } from '../components/Integrations';
 import { useOutbox } from '../data/OutboxProvider';
 import { useProfile } from '../data/hooks';
 
@@ -17,8 +18,7 @@ export function Settings() {
   const doSignOut = async (scope: 'local' | 'global') => {
     setBusy(true);
     // Never sign out with unsaved work without asking.
-    await box.flushAll();
-    if (box.size > 0) {
+    if (!(await box.flushAll())) {
       const ok = window.confirm(
         `${box.size} unsaved change${box.size === 1 ? '' : 's'} couldn’t be saved (are you offline?). Sign out anyway and lose them?`,
       );
@@ -60,6 +60,8 @@ export function Settings() {
           </button>
         </div>
       </section>
+
+      <Integrations />
 
       <section className="card" aria-labelledby="about-heading">
         <h2 id="about-heading">About the method</h2>

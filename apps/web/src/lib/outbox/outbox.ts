@@ -82,7 +82,8 @@ export class Outbox {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private retryIndex = 0;
   private waitingRetry = false;
-  private flushing = false;
+  /** The flush that's running, so callers can wait for it instead of skipping. */
+  private flushRun: Promise<void> | null = null;
   private lastSavedAt: string | null = null;
   private lastError: string | null = null;
   private drainedTables = new Set<TableName>();
@@ -141,12 +142,23 @@ export class Outbox {
     this.schedule(0);
   }
 
-  /** Resolves once the queue is empty or a retryable failure stops the flush. */
-  async flushAll(): Promise<void> {
-    this.waitingRetry = false;
-    if (this.timer) clearTimeout(this.timer);
-    this.timer = null;
-    await this.flush();
+  /**
+   * Saves everything queued now, waiting for a save that's already running.
+   * Resolves true once those changes are saved, or false if a retryable
+   * failure (usually being offline) stopped it. Changes queued meanwhile are
+   * saved too.
+   */
+  async flushAll(): Promise<boolean> {
+    for (let round = 0; round < 5; round++) {
+      this.waitingRetry = false;
+      if (this.timer) clearTimeout(this.timer);
+      this.timer = null;
+      await this.flush();
+      if (!this.executor) return this.size === 0;
+      if (this.waitingRetry) return false;
+      if (!this.queue.length) return true;
+    }
+    return !this.waitingRetry;
   }
 
   setExecutor(executor: Executor | null) {
@@ -236,9 +248,15 @@ export class Outbox {
     }, delay);
   }
 
-  private async flush() {
-    if (this.flushing || !this.executor) return;
-    this.flushing = true;
+  private flush(): Promise<void> {
+    if (!this.executor) return Promise.resolve();
+    this.flushRun ??= this.runFlush().finally(() => {
+      this.flushRun = null;
+    });
+    return this.flushRun;
+  }
+
+  private async runFlush() {
     try {
       while (this.queue.length && this.executor) {
         const op = this.queue.shift()!;
@@ -292,7 +310,6 @@ export class Outbox {
         this.options.onDrained?.(tables);
       }
     } finally {
-      this.flushing = false;
       this.changed();
     }
   }

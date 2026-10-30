@@ -6,9 +6,11 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --exclude 'test/**/*.int.test.ts'",
+    "test:int": "vitest run int.test"
   },
   "dependencies": {
+    "@jokeshovel/shared": "workspace:*",
     "hono": "^4.13.14",
     "jose": "^6.2.13"
   },

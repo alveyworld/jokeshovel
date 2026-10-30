@@ -17,6 +17,9 @@ export interface TopicSummary {
   setups_with_joke_count: number;
   /** Setups that produced a completed joke ÷ active setups; null with no setups. */
   completion_percent: number | null;
+  /** Jokes confirmed in Keep (share sheet or copy), each counted once. */
+  published_to_keep_count: number;
+  published_to_docs_count: number;
   deleted_at?: string | null;
 }
 
@@ -53,6 +56,8 @@ export function newSummaryRow(op: PendingOp): TopicSummary {
     completed_joke_count: 0,
     setups_with_joke_count: 0,
     completion_percent: null,
+    published_to_keep_count: 0,
+    published_to_docs_count: 0,
     last_activity_at: op.queuedAt,
     ...op.values,
     id: op.id,

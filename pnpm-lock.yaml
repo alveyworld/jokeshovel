@@ -116,6 +116,9 @@ importers:
 
   worker:
     dependencies:
+      '@jokeshovel/shared':
+        specifier: workspace:*
+        version: link:../packages/shared
       hono:
         specifier: ^4.13.14
         version: 4.13.14

@@ -1601,3 +1601,186 @@ mark {
   min-width: 0;
   text-overflow: ellipsis;
 }
+
+/* ---------- Publishing (Phase 4) ---------- */
+.publish-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 1px var(--space-2);
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge--keep {
+  color: var(--success);
+}
+
+/* The Publish sheet: a centred dialog, or a bottom sheet on phones. */
+.sheet {
+  width: min(100% - 2rem, 560px);
+  max-width: none;
+  max-height: min(90dvh, 900px);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.35);
+}
+.sheet::backdrop {
+  background: rgb(20 18 10 / 0.55);
+}
+@media (max-width: 639px) {
+  .sheet {
+    width: 100%;
+    max-height: 92dvh;
+    margin: auto 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    border-width: 1px 0 0;
+    border-radius: 12px 12px 0 0;
+  }
+}
+.sheet__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-soft);
+}
+.sheet__head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+.sheet__body {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+.sheet__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.sheet__actions .btn {
+  flex: 1 1 12rem;
+}
+.sheet__question {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.include {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.include__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 40px;
+}
+.include__option input {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  accent-color: var(--accent);
+}
+.note-preview {
+  display: grid;
+  gap: var(--space-1);
+}
+.note-preview h3 {
+  margin: 0;
+}
+.note-preview__card {
+  padding: var(--space-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-small);
+}
+.note-preview__title {
+  margin: 0 0 var(--space-2);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.note-preview__body {
+  margin: 0;
+  font: inherit;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Publish history on the joke card. */
+.history {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.history__item {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+}
+.history__line,
+.history__meta {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.history__meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.history__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.history__error {
+  color: var(--danger);
+}
+.status {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.status--user_confirmed,
+.status--succeeded {
+  color: var(--success);
+}
+.status--failed {
+  color: var(--danger);
+}
+.status--pending {
+  color: var(--warning);
+}
+.status--cancelled {
+  color: var(--muted);
+}

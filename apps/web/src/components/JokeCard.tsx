@@ -5,7 +5,7 @@ import { relativeTime } from '../lib/time';
 import { Stars } from './Rating';
 
 /** A link card for one completed joke. */
-export function JokeCard({ joke, topicTitle }: { joke: Joke; topicTitle?: string }) {
+export function JokeCard({ joke, topicTitle, inKeep }: { joke: Joke; topicTitle?: string; inKeep?: boolean }) {
   return (
     <Link to={`/j/${joke.id}`} className="card card--link joke-row">
       {topicTitle ? <span className="card__eyebrow">{topicTitle}</span> : null}
@@ -25,6 +25,14 @@ export function JokeCard({ joke, topicTitle }: { joke: Joke; topicTitle?: string
         {joke.rating ? ' · ' : ''}
         {joke.status === 'archived' ? 'Archived · ' : ''}
         completed {relativeTime(joke.completed_at)}
+        {inKeep ? (
+          <>
+            {' · '}
+            <span className="badge badge--keep">
+              <span aria-hidden="true">✓</span> In Keep
+            </span>
+          </>
+        ) : null}
       </span>
     </Link>
   );

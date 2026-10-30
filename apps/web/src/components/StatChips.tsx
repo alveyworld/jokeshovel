@@ -14,6 +14,7 @@ export function StatChips({ topic }: { topic: TopicSummary }) {
       {topic.completed_joke_count ? (
         <li className="chip chip--gold">{plural(topic.completed_joke_count, 'joke', 'jokes')}</li>
       ) : null}
+      {topic.published_to_keep_count ? <li className="chip">{topic.published_to_keep_count} sent to Keep</li> : null}
       <li className="chip" title="Setups that became a finished joke">
         Completion {topic.completion_percent === null ? '—' : `${topic.completion_percent}%`}
       </li>
