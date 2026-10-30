@@ -97,6 +97,46 @@ export type Database = {
           },
         ];
       };
+      google_connections: {
+        Row: {
+          connected_at: string;
+          google_email: string | null;
+          google_sub: string | null;
+          granted_scopes: string[];
+          joke_book_file_id: string | null;
+          last_error: string | null;
+          refresh_token_ciphertext: string;
+          status: Database['public']['Enums']['google_connection_status'];
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          connected_at?: string;
+          google_email?: string | null;
+          google_sub?: string | null;
+          granted_scopes?: string[];
+          joke_book_file_id?: string | null;
+          last_error?: string | null;
+          refresh_token_ciphertext: string;
+          status?: Database['public']['Enums']['google_connection_status'];
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          connected_at?: string;
+          google_email?: string | null;
+          google_sub?: string | null;
+          granted_scopes?: string[];
+          joke_book_file_id?: string | null;
+          last_error?: string | null;
+          refresh_token_ciphertext?: string;
+          status?: Database['public']['Enums']['google_connection_status'];
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       joke_attempts: {
         Row: {
           completed_at: string | null;
@@ -340,6 +380,81 @@ export type Database = {
         };
         Relationships: [];
       };
+      publications: {
+        Row: {
+          attempt_count: number;
+          body: string;
+          client_request_id: string;
+          completed_at: string | null;
+          created_at: string;
+          destination: Database['public']['Enums']['publication_destination'];
+          error_code: string | null;
+          error_message: string | null;
+          external_id: string | null;
+          external_url: string | null;
+          id: string;
+          include_options: NonNullable<Json>;
+          joke_id: string;
+          method: Database['public']['Enums']['publication_method'];
+          requested_at: string;
+          status: Database['public']['Enums']['publication_status'];
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          attempt_count?: number;
+          body: string;
+          client_request_id: string;
+          completed_at?: string | null;
+          created_at?: string;
+          destination: Database['public']['Enums']['publication_destination'];
+          error_code?: string | null;
+          error_message?: string | null;
+          external_id?: string | null;
+          external_url?: string | null;
+          id?: string;
+          include_options?: NonNullable<Json>;
+          joke_id: string;
+          method: Database['public']['Enums']['publication_method'];
+          requested_at?: string;
+          status?: Database['public']['Enums']['publication_status'];
+          title: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          attempt_count?: number;
+          body?: string;
+          client_request_id?: string;
+          completed_at?: string | null;
+          created_at?: string;
+          destination?: Database['public']['Enums']['publication_destination'];
+          error_code?: string | null;
+          error_message?: string | null;
+          external_id?: string | null;
+          external_url?: string | null;
+          id?: string;
+          include_options?: NonNullable<Json>;
+          joke_id?: string;
+          method?: Database['public']['Enums']['publication_method'];
+          requested_at?: string;
+          status?: Database['public']['Enums']['publication_status'];
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'publications_joke_id_user_id_fkey';
+            columns: ['joke_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'jokes';
+            referencedColumns: ['id', 'user_id'];
+          },
+        ];
+      };
       reinterpretations: {
         Row: {
           attempt_id: string;
@@ -557,6 +672,8 @@ export type Database = {
           description: string;
           is_favorite: boolean;
           last_activity_at: string;
+          published_to_docs_count: number | null;
+          published_to_keep_count: number | null;
           setup_count: number | null;
           setups_with_joke_count: number | null;
           status: Database['public']['Enums']['topic_status'];
@@ -602,6 +719,36 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      confirm_publication: {
+        Args: { p_id: string; p_saved: boolean };
+        Returns: {
+          attempt_count: number;
+          body: string;
+          client_request_id: string;
+          completed_at: string | null;
+          created_at: string;
+          destination: Database['public']['Enums']['publication_destination'];
+          error_code: string | null;
+          error_message: string | null;
+          external_id: string | null;
+          external_url: string | null;
+          id: string;
+          include_options: NonNullable<Json>;
+          joke_id: string;
+          method: Database['public']['Enums']['publication_method'];
+          requested_at: string;
+          status: Database['public']['Enums']['publication_status'];
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'publications';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       search_all: {
         Args: { q: string };
         Returns: {
@@ -614,11 +761,52 @@ export type Database = {
           topic_title: string;
         }[];
       };
+      start_publication: {
+        Args: {
+          p_body: string;
+          p_client_request_id: string;
+          p_include: Json;
+          p_joke_id: string;
+          p_method: Database['public']['Enums']['publication_method'];
+          p_title: string;
+        };
+        Returns: {
+          attempt_count: number;
+          body: string;
+          client_request_id: string;
+          completed_at: string | null;
+          created_at: string;
+          destination: Database['public']['Enums']['publication_destination'];
+          error_code: string | null;
+          error_message: string | null;
+          external_id: string | null;
+          external_url: string | null;
+          id: string;
+          include_options: NonNullable<Json>;
+          joke_id: string;
+          method: Database['public']['Enums']['publication_method'];
+          requested_at: string;
+          status: Database['public']['Enums']['publication_status'];
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'publications';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
     };
     Enums: {
       attempt_status: 'in_progress' | 'completed' | 'abandoned' | 'archived';
       attempt_step: 'target' | 'connector' | 'reinterpretations' | 'choose' | 'second_story' | 'punch' | 'review';
+      google_connection_status: 'active' | 'revoked' | 'error';
       joke_status: 'complete' | 'archived';
+      publication_destination: 'google_keep' | 'google_docs' | 'markdown';
+      publication_method: 'share_sheet' | 'copy_open' | 'docs_api' | 'download';
+      publication_status: 'pending' | 'succeeded' | 'failed' | 'user_confirmed' | 'cancelled';
       setup_status: 'active' | 'archived';
       topic_status: 'active' | 'archived';
     };
@@ -730,7 +918,11 @@ export const Constants = {
     Enums: {
       attempt_status: ['in_progress', 'completed', 'abandoned', 'archived'],
       attempt_step: ['target', 'connector', 'reinterpretations', 'choose', 'second_story', 'punch', 'review'],
+      google_connection_status: ['active', 'revoked', 'error'],
       joke_status: ['complete', 'archived'],
+      publication_destination: ['google_keep', 'google_docs', 'markdown'],
+      publication_method: ['share_sheet', 'copy_open', 'docs_api', 'download'],
+      publication_status: ['pending', 'succeeded', 'failed', 'user_confirmed', 'cancelled'],
       setup_status: ['active', 'archived'],
       topic_status: ['active', 'archived'],
     },

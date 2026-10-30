@@ -45,6 +45,8 @@ export function TopicDetail() {
       completed_joke_count: 0,
       setups_with_joke_count: 0,
       completion_percent: null,
+      published_to_keep_count: 0,
+      published_to_docs_count: 0,
     }),
     association_count: associations.length,
     setup_count: setups.filter((s) => s.status === 'active').length,

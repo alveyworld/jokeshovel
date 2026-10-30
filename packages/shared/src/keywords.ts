@@ -1,6 +1,6 @@
 /**
- * Suggested titles for jokes (and, in Phase 4, Google Keep notes):
- * "[Topic] — [Setup keywords]". Deterministic, per docs/DESIGN.md §9.4.
+ * Suggested titles for jokes and Google Keep notes: "[Topic] — [Setup
+ * keywords]" (plus " — Joke" for Keep). Deterministic, per docs/DESIGN.md §9.4.
  */
 
 const STOP_WORDS = new Set(
@@ -36,8 +36,24 @@ const titleCase = (w: string) =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join('-');
 
-/** The two most telling words of the setup, in setup order. */
-export function setupKeywords({ setup, topic, connector = '', associations = [] }: KeywordInput): string[] {
+export interface KeywordCandidate {
+  /** Title-cased word as it appears in titles ("Six-Hour"). */
+  word: string;
+  score: number;
+  /** Position in the setup, for keeping setup order. */
+  index: number;
+}
+
+/**
+ * Every word of the setup that could go in a title, scored per
+ * docs/DESIGN.md §9.4, in setup order. The Publish sheet shows these as chips.
+ */
+export function keywordCandidates({
+  setup,
+  topic,
+  connector = '',
+  associations = [],
+}: KeywordInput): KeywordCandidate[] {
   const tokens = [...setup.matchAll(WORD)].map((m) => m[0]);
   const topicWords = new Set([...topic.matchAll(WORD)].map((m) => normalise(m[0])));
   const connectorWords = new Set([...connector.matchAll(WORD)].map((m) => normalise(m[0])));
@@ -50,7 +66,7 @@ export function setupKeywords({ setup, topic, connector = '', associations = [] 
   }
 
   const seen = new Set<string>();
-  const candidates = tokens
+  return tokens
     .map((original, index) => ({ original, word: normalise(original), index }))
     .filter(({ word }) => {
       if (STOP_WORDS.has(word) || /^\d+$/.test(word) || topicWords.has(word) || seen.has(word)) return false;
@@ -63,22 +79,59 @@ export function setupKeywords({ setup, topic, connector = '', associations = [] 
       score += associationScore.get(c.word) ?? 0;
       if (c.word.length >= 6) score += 1;
       if (c.index > 0 && /^\p{Lu}/u.test(c.original)) score += 1;
-      return { ...c, score };
+      return { word: titleCase(c.word), score, index: c.index };
     });
+}
 
-  if (!candidates.length) return tokens.slice(0, 4).map(titleCase);
+/** The two most telling words of the setup, in setup order. */
+export function setupKeywords(input: KeywordInput): string[] {
+  const candidates = keywordCandidates(input);
+  if (!candidates.length) return [...input.setup.matchAll(WORD)].slice(0, 4).map((m) => titleCase(m[0]));
 
   // The two best (ties go to the earlier word), shown in setup order.
   return [...candidates]
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .slice(0, 2)
     .sort((a, b) => a.index - b.index)
-    .map((c) => titleCase(c.word));
+    .map((c) => c.word);
 }
+
+const MAX_TITLE = 80;
+const KEEP_SUFFIX = ' — Joke';
+
+const clip = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);
 
 /** "Airports — Flight Layover", trimmed to 80 characters. */
 export function suggestTitle(input: KeywordInput): string {
   const keywords = setupKeywords(input).join(' ');
-  const title = [input.topic.trim(), keywords].filter(Boolean).join(' — ');
-  return title.length > 80 ? `${title.slice(0, 79).trimEnd()}…` : title;
+  return clip([input.topic.trim(), keywords].filter(Boolean).join(' — '), MAX_TITLE);
+}
+
+/**
+ * A Keep note title, "[Topic] — [Keywords] — Joke" (docs/DESIGN.md §9.4),
+ * at most 80 characters. `keywords` are in setup order.
+ */
+export function keepTitle(topic: string, keywords: readonly string[]): string {
+  const base = [topic.trim(), keywords.join(' ')].filter(Boolean).join(' — ');
+  return `${clip(base || 'Untitled', MAX_TITLE - KEEP_SUFFIX.length)}${KEEP_SUFFIX}`;
+}
+
+/** The suggested Keep title: the topic plus the two best keywords. */
+export function suggestKeepTitle(input: KeywordInput): string {
+  return keepTitle(input.topic, setupKeywords(input));
+}
+
+/**
+ * Adds " #2", " #3"… when the title is already taken (ignoring case), before
+ * the " — Joke" suffix if there is one: "Airports — Flight Layover #2 — Joke".
+ */
+export function uniqueTitle(title: string, taken: Iterable<string>): string {
+  const used = new Set([...taken].map((t) => t.trim().toLowerCase()));
+  if (!used.has(title.trim().toLowerCase())) return title;
+  const keep = title.endsWith(KEEP_SUFFIX);
+  const base = keep ? title.slice(0, -KEEP_SUFFIX.length) : title;
+  for (let n = 2; ; n++) {
+    const candidate = `${base} #${n}${keep ? KEEP_SUFFIX : ''}`;
+    if (!used.has(candidate.toLowerCase())) return candidate;
+  }
 }

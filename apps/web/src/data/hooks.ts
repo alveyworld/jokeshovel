@@ -77,6 +77,8 @@ export function useTopicSummaries() {
         completed_joke_count: r.completed_joke_count ?? 0,
         setups_with_joke_count: r.setups_with_joke_count ?? 0,
         completion_percent: r.completion_percent,
+        published_to_keep_count: r.published_to_keep_count ?? 0,
+        published_to_docs_count: r.published_to_docs_count ?? 0,
       }));
     },
   });
@@ -297,8 +299,7 @@ export function useCompleteAttempt() {
   const qc = useQueryClient();
   return useCallback(
     async (attemptId: string, title: string): Promise<CompleteResult> => {
-      await box.flushAll();
-      if (box.size > 0) {
+      if (!(await box.flushAll())) {
         return {
           ok: false,
           message: 'You’re offline. Your work is saved on this device; complete the joke once you’re back online.',

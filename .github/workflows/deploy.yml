@@ -58,3 +58,4 @@ jobs:
           --var "SUPABASE_ANON_KEY:${{ vars.SUPABASE_ANON_KEY }}"
           --var "APP_BASE_URL:${{ vars.APP_BASE_URL }}"
           --var "APP_VERSION:${{ env.SHA }}"
+          --var "FEATURE_DOCS_SYNC:${{ vars.FEATURE_DOCS_SYNC || 'false' }}"

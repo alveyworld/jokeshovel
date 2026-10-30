@@ -637,6 +637,8 @@ Indexes: `(joke_id, created_at desc)`, `(user_id, status)`.
 
 RLS is enabled with **no policies** for `authenticated`, so it is reachable only with the service role from the Worker. The UI gets its status from `GET /api/integrations/google`.
 
+*As built (Phase 4):* `google_connections` also stores `joke_book_file_id` (the Joke Book doc). Users can read their own `publications` but not write them: share and copy publishes go through the `start_publication` and `confirm_publication` functions, and Docs publishes through the Worker. The PKCE verifier travels inside the encrypted OAuth `state` instead of Workers KV.
+
 ### 7.4 Status fields summary
 
 | Entity | Stored status | Derived status (views) |
@@ -805,6 +807,8 @@ Most comedians will sign in with consumer Gmail accounts, so the default path ca
    - **docs_api:** the client calls `POST /api/jokes/:id/publish {method, title, include, client_request_id}`. The Worker inserts a `pending` row (idempotent on `client_request_id`), refreshes the Google access token, calls Google, and updates the row to `succeeded` (with `external_id` and `external_url`) or `failed` (with `error_code` and a friendly message).
 5. The joke card shows a "Published · Oct 27" badge and the history.
 6. **Republishing** after edits shares a new Keep note (the user deletes the old one in Keep if they want) and, for the Docs Joke Book, appends a new entry marked "(revised)".
+
+*As built (Phase 4):* steps 2 and 4 for share and copy run in the browser. It builds the note with the same shared formatter the Worker uses and records the publish through Postgres functions, so the share sheet opens straight from the tap. Only the Docs Joke Book calls the Worker.
 
 ### 9.4 Note format
 
@@ -1093,6 +1097,9 @@ Each phase ends with something deployed and usable. Sprints are 2 weeks for one 
 - **Risks:** confusion between the attempt and the joke snapshot. Mitigate with copy ("Your joke card" vs "Your dig").
 
 ### Phase 4 — Google Keep publishing (Sprints 5–6)
+
+> **Status (2026-10-30):** built and tested locally; Share to Keep still to be checked on real phones, and the Docs Joke Book is off until its Google client is set up. See [`phase-4-review.md`](phase-4-review.md).
+
 - **Goal:** get jokes into Keep with predictable titles.
 - **Features:** Publish sheet, keyword chips and title generation, Share-to-Keep, Copy-and-open, confirmation, `publications` history, Keep statistics. Behind a flag: Google integration OAuth and the Docs Joke Book. Error handling (§9.5). (No direct Keep API, §18.1.)
 - **Database changes:** `publications`, `google_connections`, `topic_stats` v4 (Keep-published).

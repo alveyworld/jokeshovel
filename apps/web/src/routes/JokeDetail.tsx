@@ -1,10 +1,14 @@
 import { LIMITS, type Joke } from '@jokeshovel/shared';
+import { useState } from 'react';
 import { Link, NavLink, useNavigate, useParams } from 'react-router';
 import { AutosaveField } from '../components/AutosaveField';
+import { PublishHistory } from '../components/PublishHistory';
+import { PublishSheet } from '../components/PublishSheet';
 import { Rating } from '../components/Rating';
 import { ToggleButton } from '../components/ToggleButton';
 import { useToast } from '../components/Toasts';
 import { useJoke, useMutations, useTopic } from '../data/hooks';
+import { sentToKeep, usePublications } from '../data/publishing';
 import { useRememberLocation } from '../data/useRememberLocation';
 
 export function JokeDetail() {
@@ -35,6 +39,9 @@ function JokeDetailBody({ joke }: { joke: Joke }) {
   const navigate = useNavigate();
   useRememberLocation(`Joke · ${joke.title || topic?.title || 'Untitled'}`);
   const archived = joke.status === 'archived';
+  const { publications } = usePublications();
+  const inKeep = sentToKeep(publications, joke.id);
+  const [publishing, setPublishing] = useState(false);
 
   const remove = () => {
     softDelete('jokes', joke.id);
@@ -72,6 +79,21 @@ function JokeDetailBody({ joke }: { joke: Joke }) {
         {new Date(joke.completed_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
       </p>
       {archived ? <p className="notice">This joke is archived. It’s hidden from your main list.</p> : null}
+
+      <div className="publish-bar">
+        <button type="button" className="btn btn--primary" onClick={() => setPublishing(true)}>
+          Publish to Keep
+        </button>
+        {inKeep ? (
+          <span className="badge badge--keep">
+            <span aria-hidden="true">✓</span> Sent to Keep ·{' '}
+            {new Date(inKeep.completed_at ?? inKeep.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+          </span>
+        ) : null}
+      </div>
+      {publishing ? (
+        <PublishSheet joke={joke} topicTitle={topic?.title ?? ''} onClose={() => setPublishing(false)} />
+      ) : null}
 
       <section className="joke-card joke-card--edit" aria-label="The joke">
         <AutosaveField
@@ -139,6 +161,13 @@ function JokeDetailBody({ joke }: { joke: Joke }) {
           </p>
         ) : null}
       </details>
+
+      <section className="publish-history" aria-labelledby="publish-history-heading">
+        <h2 id="publish-history-heading" className="section-title">
+          Publish history
+        </h2>
+        <PublishHistory jokeId={joke.id} headingId="publish-history-heading" />
+      </section>
 
       <div className="button-row">
         <button type="button" className="btn btn--small" onClick={() => setArchived('jokes', joke.id, !archived)}>

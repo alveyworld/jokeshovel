@@ -2,3 +2,12 @@
 SUPABASE_URL=http://127.0.0.1:54321
 SUPABASE_ANON_KEY=<anon key from `supabase status`>
 APP_BASE_URL=http://localhost:8787
+
+# Optional: the Google Docs Joke Book (see docs/RUNBOOK.md). Leave these out
+# and the app works without it.
+# FEATURE_DOCS_SYNC=true
+# SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY from `supabase status`>
+# GOOGLE_INTEGRATION_CLIENT_ID=<OAuth client id>.apps.googleusercontent.com
+# GOOGLE_INTEGRATION_CLIENT_SECRET=<OAuth client secret>
+# TOKEN_ENCRYPTION_KEY=<openssl rand -base64 32>
+# OAUTH_STATE_SIGNING_KEY=<openssl rand -base64 32>

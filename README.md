@@ -9,8 +9,9 @@ Built and tested locally; **not deployed yet** (needs the one-time account setup
 - **Sprint 1:** Google sign-in, topics, association lists, setups, autosave that survives closed tabs and lost connections, topic counts, and "Resume digging".
 - **Phase 2, the Joke Mine:** list a setup's assumptions, then take a joke attempt step by step: target, connector (tap words in the setup), reinterpretations, choice, second story, punch. Multiple attempts per setup, a "thread so far" panel, and a Drafts tab.
 - **Phase 3, completed jokes:** a Review step that turns an attempt into a joke with a suggested title, an editable joke card with favorites and ratings, a Jokes tab with filters, typo-tolerant search across everything, and a Stats page with completion %, weekly charts and stuck drafts.
+- **Phase 4, publishing:** a Publish sheet with a predictable note title (`Topic — Keywords — Joke`, keyword chips, editable), optional "how I dug it" sections and a live preview; **Share to Keep** on phones and **Copy & open Keep** everywhere, with a "Did it save?" check, a publish history, and Keep counts on topics and Stats. An optional Google Docs "Joke Book" is built but off by default.
 
-Next: Phase 4, sending jokes to Google Keep.
+Next: Phase 5, an improved writing workflow (quick switcher, tags, export, Trash, installable app).
 
 ## Repository layout
 
@@ -40,7 +41,7 @@ Full instructions, production setup, deploys, rollback and backups: [`docs/RUNBO
 
 - [`docs/DESIGN.md`](docs/DESIGN.md): product, UX, data model, auth, Keep publishing, architecture, phases, user stories
 - [`docs/RUNBOOK.md`](docs/RUNBOOK.md): running, deploying, restoring
-- [`docs/sprint-1-review.md`](docs/sprint-1-review.md), [`docs/phase-2-review.md`](docs/phase-2-review.md), [`docs/phase-3-review.md`](docs/phase-3-review.md): what each phase delivered
+- [`docs/sprint-1-review.md`](docs/sprint-1-review.md), [`docs/phase-2-review.md`](docs/phase-2-review.md), [`docs/phase-3-review.md`](docs/phase-3-review.md), [`docs/phase-4-review.md`](docs/phase-4-review.md): what each phase delivered
 
 ## Stack
 

@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { JokeCard } from '../components/JokeCard';
 import { useJokes, useTopicSummaries } from '../data/hooks';
+import { sentToKeep, usePublications } from '../data/publishing';
 
 type Show = 'all' | 'favorites' | 'archived';
 type Sort = 'newest' | 'rating' | 'topic';
+type KeepFilter = 'any' | 'sent' | 'not';
 
 const SHOW_LABELS: Record<Show, string> = { all: 'All', favorites: 'Favorites', archived: 'Archived' };
 
@@ -16,6 +18,9 @@ export function Jokes() {
   const [topicId, setTopicId] = useState('');
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState<Sort>('newest');
+  const [keep, setKeep] = useState<KeepFilter>('any');
+  const { publications } = usePublications();
+  const inKeep = new Set(jokes.filter((j) => sentToKeep(publications, j.id)).map((j) => j.id));
 
   const topicTitle = new Map(topics.map((t) => [t.id, t.title || 'Untitled topic']));
   const titleOf = (j: Joke) => topicTitle.get(j.topic_id) ?? '';
@@ -32,9 +37,10 @@ export function Jokes() {
     .filter((j) => show !== 'favorites' || j.is_favorite)
     .filter((j) => !topicId || j.topic_id === topicId)
     .filter((j) => !minRating || (j.rating ?? 0) >= minRating)
+    .filter((j) => keep === 'any' || (keep === 'sent') === inKeep.has(j.id))
     .sort(sorts[sort]);
 
-  const filtered = show !== 'all' || topicId || minRating;
+  const filtered = show !== 'all' || topicId || minRating || keep !== 'any';
   const usedTopics = topics.filter((t) => jokes.some((j) => j.topic_id === t.id));
 
   return (
@@ -80,6 +86,14 @@ export function Jokes() {
           </select>
         </label>
         <label className="toolbar__sort">
+          <span>Keep</span>
+          <select value={keep} onChange={(e) => setKeep(e.target.value as KeepFilter)}>
+            <option value="any">Any</option>
+            <option value="sent">Sent to Keep</option>
+            <option value="not">Not yet in Keep</option>
+          </select>
+        </label>
+        <label className="toolbar__sort">
           <span>Sort</span>
           <select value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
             <option value="newest">Newest</option>
@@ -99,15 +113,15 @@ export function Jokes() {
         <ul className="card-list" aria-label={`${shown.length} ${shown.length === 1 ? 'joke' : 'jokes'}`}>
           {shown.map((j) => (
             <li key={j.id}>
-              <JokeCard joke={j} topicTitle={titleOf(j)} />
+              <JokeCard joke={j} topicTitle={titleOf(j)} inKeep={inKeep.has(j.id)} />
             </li>
           ))}
         </ul>
       ) : jokes.length && filtered ? (
         <p className="empty">
-          {show === 'favorites' && !topicId && !minRating
+          {show === 'favorites' && !topicId && !minRating && keep === 'any'
             ? 'No favorites yet. Tap the heart on a joke to add it here.'
-            : show === 'archived' && !topicId && !minRating
+            : show === 'archived' && !topicId && !minRating && keep === 'any'
               ? 'No archived jokes.'
               : 'No jokes match these filters.'}
         </p>

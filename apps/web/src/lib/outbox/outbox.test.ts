@@ -180,7 +180,35 @@ describe('Outbox', () => {
     const { calls, executor } = recorder();
     const box = new Outbox(memoryStorage(), executor, { debounceMs: 10_000 });
     box.update('topics', 't1', { title: 'x' });
-    await box.flushAll();
+    expect(await box.flushAll()).toBe(true);
     expect(calls).toHaveLength(1);
+  });
+
+  it('flushAll waits for a save already running, including edits queued meanwhile', async () => {
+    let release!: () => void;
+    const calls: string[] = [];
+    const executor = vi.fn(async (op: PendingOp) => {
+      calls.push(op.key);
+      if (op.key === 'setups:s1') await new Promise<void>((resolve) => (release = resolve));
+      return { ok: true as const };
+    });
+    const box = new Outbox(memoryStorage(), executor, { debounceMs: 10 });
+    box.update('setups', 's1', { text: 'My flight' });
+    await vi.advanceTimersByTimeAsync(10); // the debounced save starts and is in flight
+    box.update('joke_attempts', 'a1', { punch: 'Loop-de-loops' });
+    const done = box.flushAll();
+    box.update('profiles', 'u1', { last_location: null }); // e.g. the Resume bookmark
+    release();
+    expect(await done).toBe(true);
+    expect(calls).toEqual(['setups:s1', 'joke_attempts:a1', 'profiles:u1']);
+    expect(box.size).toBe(0);
+  });
+
+  it('flushAll reports false when a retryable failure stops it (offline)', async () => {
+    const { executor } = recorder([{ ok: false, retryable: true, message: 'Failed to fetch' }]);
+    const box = new Outbox(memoryStorage(), executor, { debounceMs: 10_000 });
+    box.update('topics', 't1', { title: 'x' });
+    expect(await box.flushAll()).toBe(false);
+    expect(box.getSnapshot().state).toBe('offline');
   });
 });

@@ -14,6 +14,7 @@ type Column =
   | 'setup_count'
   | 'unfinished_attempt_count'
   | 'completed_joke_count'
+  | 'published_to_keep_count'
   | 'completion_percent';
 
 const COLUMNS: { key: Column; label: string }[] = [
@@ -22,6 +23,7 @@ const COLUMNS: { key: Column; label: string }[] = [
   { key: 'setup_count', label: 'Setups' },
   { key: 'unfinished_attempt_count', label: 'Drafts' },
   { key: 'completed_joke_count', label: 'Jokes' },
+  { key: 'published_to_keep_count', label: 'In Keep' },
   { key: 'completion_percent', label: 'Completion' },
 ];
 
@@ -73,6 +75,10 @@ export function Stats() {
     { label: 'Setups', value: sum(topics, 'setup_count') },
     { label: 'Joke attempts', value: attemptCount },
     { label: 'Completed jokes', value: sum(topics, 'completed_joke_count') },
+    { label: 'Sent to Keep', value: sum(topics, 'published_to_keep_count') },
+    ...(sum(topics, 'published_to_docs_count')
+      ? [{ label: 'In the Joke Book', value: sum(topics, 'published_to_docs_count') }]
+      : []),
     { label: 'Completion', value: completion === null ? '—' : `${completion}%` },
   ];
 
@@ -163,6 +169,7 @@ export function Stats() {
                     <td>{t.setup_count}</td>
                     <td>{t.unfinished_attempt_count}</td>
                     <td>{t.completed_joke_count}</td>
+                    <td>{t.published_to_keep_count}</td>
                     <td>{t.completion_percent === null ? '—' : `${t.completion_percent}%`}</td>
                   </tr>
                 ))}
