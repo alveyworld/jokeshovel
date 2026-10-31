@@ -11,7 +11,10 @@ import { Link, NavLink, useNavigate, useParams } from 'react-router';
 import { AutosaveField } from '../components/AutosaveField';
 import { BrainstormList } from '../components/BrainstormList';
 import { useToast } from '../components/Toasts';
-import { useAssumptions, useAttempts, useMutations, useSetup, useTopic } from '../data/hooks';
+import { useQueryClient } from '@tanstack/react-query';
+import { useOutbox } from '../data/OutboxProvider';
+import { useAssumptions, useAttempts, useMutations, useSetup, useSetups, useTopic } from '../data/hooks';
+import { supabase } from '../lib/supabase';
 import { useRememberLocation } from '../data/useRememberLocation';
 import { excerpt } from '../lib/text';
 import { relativeTime } from '../lib/time';
@@ -48,6 +51,12 @@ function SetupDetailBody({ setup }: { setup: Setup }) {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const [prompt, setPrompt] = useState<string>(ASSUMPTION_PROMPTS[0].question);
+  const { setups } = useSetups(setup.topic_id);
+  const box = useOutbox();
+  const qc = useQueryClient();
+  const [copying, setCopying] = useState(false);
+  const parent = setup.parent_setup_id ? setups.find((s) => s.id === setup.parent_setup_id) : undefined;
+  const branches = setups.filter((s) => s.parent_setup_id === setup.id);
   useRememberLocation(`${topic?.title ?? 'Topic'} › ${excerpt(setup.text, 40) || 'Untitled setup'}`);
 
   const liveTargets = new Set(assumptions.map((a) => a.id));
@@ -68,6 +77,32 @@ function SetupDetailBody({ setup }: { setup: Setup }) {
       actionLabel: 'Undo',
       onAction: () => restore('joke_attempts', attempt.id),
     });
+  };
+
+  /** Branch (new wording, no assumptions) or duplicate (exact copy with assumptions), SET-3. */
+  const copy = async (duplicate: boolean) => {
+    setCopying(true);
+    // Copy what's on screen: save queued edits first.
+    if (!(await box.flushAll())) {
+      setCopying(false);
+      showToast({ message: 'You’re offline. Branch or duplicate once you’re back online.', tone: 'error' });
+      return;
+    }
+    const { data, error } = await supabase.rpc('branch_setup', {
+      p_setup_id: setup.id,
+      p_copy_assumptions: duplicate,
+    });
+    setCopying(false);
+    if (error || !data) {
+      showToast({ message: error?.message ?? 'Couldn’t copy the setup.', tone: 'error' });
+      return;
+    }
+    void qc.invalidateQueries({ queryKey: ['setups'] });
+    void qc.invalidateQueries({ queryKey: ['topic_stats'] });
+    showToast({
+      message: duplicate ? 'Duplicated, with its assumptions.' : 'Branched. Change the wording to try a variation.',
+    });
+    navigate(`/s/${(data as Setup).id}`);
   };
 
   const start = () => {
@@ -95,6 +130,35 @@ function SetupDetailBody({ setup }: { setup: Setup }) {
         maxLength={LIMITS.setup}
         placeholder="A believable sentence or two that sets the scene…"
       />
+      <div className="setup-lineage">
+        {parent ? (
+          <p>
+            Branch of <Link to={`/s/${parent.id}`}>“{excerpt(parent.text, 60) || 'Untitled setup'}”</Link>
+          </p>
+        ) : null}
+        {branches.length ? (
+          <p>
+            {branches.length === 1 ? 'Branch' : 'Branches'}:{' '}
+            {branches.map((b, i) => (
+              <span key={b.id}>
+                {i ? ', ' : ''}
+                <Link to={`/s/${b.id}`}>“{excerpt(b.text, 40) || 'Untitled setup'}”</Link>
+              </span>
+            ))}
+          </p>
+        ) : null}
+        <div className="button-row">
+          <button type="button" className="btn btn--small" disabled={copying} onClick={() => copy(false)}>
+            Branch
+          </button>
+          <button type="button" className="btn btn--small" disabled={copying} onClick={() => copy(true)}>
+            Duplicate
+          </button>
+        </div>
+        <p className="field__hint help">
+          Branch to try new wording without losing this one. Duplicate copies it with its assumptions.
+        </p>
+      </div>
 
       <section className="workspace" aria-labelledby="assumptions-heading">
         <h2 id="assumptions-heading">Assumptions</h2>
@@ -167,7 +231,7 @@ function SetupDetailBody({ setup }: { setup: Setup }) {
           {attempts.length ? 'Start another attempt' : 'Start a joke attempt'}
         </button>
         {!assumptions.length ? (
-          <p className="field__hint">Tip: list a few assumptions first. You’ll pick one as your target.</p>
+          <p className="field__hint help">Tip: list a few assumptions first. You’ll pick one as your target.</p>
         ) : null}
       </section>
     </div>

@@ -255,6 +255,23 @@ export function useDrafts() {
   return { ...query, drafts };
 }
 
+/** The most recently edited setups across all topics (for the quick switcher). */
+export function useRecentSetups(enabled = true) {
+  return useQuery({
+    queryKey: ['setups', 'recent'],
+    enabled,
+    queryFn: async () =>
+      unwrap(
+        await supabase
+          .from('setups')
+          .select('id, topic_id, text, updated_at')
+          .is('deleted_at', null)
+          .order('updated_at', { ascending: false })
+          .limit(200),
+      ) ?? [],
+  });
+}
+
 /** Every joke in the collection, newest first (soft-deleted ones too, for Undo). */
 export function useJokes() {
   const pending = usePending();

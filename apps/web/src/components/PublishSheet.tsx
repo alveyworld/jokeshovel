@@ -17,6 +17,7 @@ import { useUser } from '../auth/AuthProvider';
 import { useOutbox } from '../data/OutboxProvider';
 import { useAssociations, useMutations, useProfile } from '../data/hooks';
 import { useFeatures, useGoogleConnection, useOnline, usePublications, usePublishActions } from '../data/publishing';
+import { haptic } from '../lib/haptics';
 import { useToast } from './Toasts';
 
 export const KEEP_URL = 'https://keep.google.com/';
@@ -170,7 +171,10 @@ export function PublishSheet({ joke, topicTitle, onClose }: { joke: Joke; topicT
     setBusy(true);
     try {
       await actions.confirm(step.publication.id, saved);
-      if (saved) rememberInclude();
+      if (saved) {
+        rememberInclude();
+        haptic();
+      }
       showToast({ message: saved ? 'Sent to Keep.' : 'Not marked as sent. You can publish again any time.' });
       onClose();
     } catch (err) {

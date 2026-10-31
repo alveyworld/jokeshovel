@@ -240,6 +240,40 @@ export type Database = {
           },
         ];
       };
+      joke_tags: {
+        Row: {
+          joke_id: string;
+          tag_id: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          joke_id: string;
+          tag_id: string;
+          user_id?: string;
+        };
+        Update: {
+          joke_id?: string;
+          tag_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'joke_tags_joke_id_user_id_fkey';
+            columns: ['joke_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'jokes';
+            referencedColumns: ['id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'joke_tags_tag_id_user_id_fkey';
+            columns: ['tag_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'tags';
+            referencedColumns: ['id', 'user_id'];
+          },
+        ];
+      };
       jokes: {
         Row: {
           archived_at: string | null;
@@ -578,6 +612,72 @@ export type Database = {
           },
         ];
       };
+      tags: {
+        Row: {
+          color: string | null;
+          created_at: string;
+          id: string;
+          name: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          color?: string | null;
+          created_at?: string;
+          id?: string;
+          name: string;
+          user_id?: string;
+        };
+        Update: {
+          color?: string | null;
+          created_at?: string;
+          id?: string;
+          name?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      topic_tags: {
+        Row: {
+          tag_id: string;
+          topic_id: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          tag_id: string;
+          topic_id: string;
+          user_id?: string;
+        };
+        Update: {
+          tag_id?: string;
+          topic_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'topic_tags_tag_id_user_id_fkey';
+            columns: ['tag_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'tags';
+            referencedColumns: ['id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'topic_tags_topic_id_user_id_fkey';
+            columns: ['topic_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'topic_stats';
+            referencedColumns: ['topic_id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'topic_tags_topic_id_user_id_fkey';
+            columns: ['topic_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'topics';
+            referencedColumns: ['id', 'user_id'];
+          },
+        ];
+      };
       topics: {
         Row: {
           archived_at: string | null;
@@ -687,6 +787,31 @@ export type Database = {
       };
     };
     Functions: {
+      branch_setup: {
+        Args: { p_copy_assumptions?: boolean; p_setup_id: string };
+        Returns: {
+          archived_at: string | null;
+          created_at: string;
+          deleted_at: string | null;
+          id: string;
+          is_favorite: boolean;
+          notes: string;
+          parent_setup_id: string | null;
+          sort_order: number;
+          status: Database['public']['Enums']['setup_status'];
+          text: string;
+          topic_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'setups';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      clean_tag_names: { Args: { p_names: string[] }; Returns: string[] };
       complete_attempt: {
         Args: { p_attempt_id: string; p_title?: string };
         Returns: {
@@ -749,6 +874,24 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      delete_account: { Args: { p_confirm: string }; Returns: undefined };
+      ensure_tags: {
+        Args: { p_names: string[] };
+        Returns: {
+          color: string | null;
+          created_at: string;
+          id: string;
+          name: string;
+          user_id: string;
+        }[];
+        SetofOptions: {
+          from: '*';
+          to: 'tags';
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
+      purge_trash: { Args: { p_older_than?: string }; Returns: Json };
       search_all: {
         Args: { q: string };
         Returns: {
@@ -760,6 +903,38 @@ export type Database = {
           topic_id: string;
           topic_title: string;
         }[];
+      };
+      set_joke_tags: {
+        Args: { p_joke_id: string; p_names: string[] };
+        Returns: {
+          color: string | null;
+          created_at: string;
+          id: string;
+          name: string;
+          user_id: string;
+        }[];
+        SetofOptions: {
+          from: '*';
+          to: 'tags';
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
+      set_topic_tags: {
+        Args: { p_names: string[]; p_topic_id: string };
+        Returns: {
+          color: string | null;
+          created_at: string;
+          id: string;
+          name: string;
+          user_id: string;
+        }[];
+        SetofOptions: {
+          from: '*';
+          to: 'tags';
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
       };
       start_publication: {
         Args: {

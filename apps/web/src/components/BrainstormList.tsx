@@ -62,6 +62,7 @@ export function BrainstormList<T extends Item>({
         </label>
         <div className="inline-form__row">
           <input
+            data-shortcut="new"
             id={id}
             ref={inputRef}
             type="text"
@@ -77,7 +78,7 @@ export function BrainstormList<T extends Item>({
             Add
           </button>
         </div>
-        <p id={`${id}-hint`} className="field__hint">
+        <p id={`${id}-hint`} className="field__hint help">
           Press Enter to add and keep going.
         </p>
       </form>

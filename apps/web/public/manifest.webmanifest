@@ -1,0 +1,19 @@
+{
+  "name": "The Joke Shovel",
+  "short_name": "Joke Shovel",
+  "description": "Dig from a topic to a finished joke, one step at a time.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f3ee8a",
+  "theme_color": "#4e4e4e",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Drafts", "url": "/drafts" },
+    { "name": "Jokes", "url": "/jokes" }
+  ]
+}

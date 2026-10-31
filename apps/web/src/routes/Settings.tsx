@@ -3,7 +3,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useAuth, useUser } from '../auth/AuthProvider';
 import { AutosaveField } from '../components/AutosaveField';
+import { DataCard } from '../components/DataCard';
 import { Integrations } from '../components/Integrations';
+import { PreferencesCard } from '../components/PreferencesCard';
+import { TagManager } from '../components/TagManager';
 import { useOutbox } from '../data/OutboxProvider';
 import { useProfile } from '../data/hooks';
 
@@ -61,7 +64,13 @@ export function Settings() {
         </div>
       </section>
 
+      <PreferencesCard />
+
       <Integrations />
+
+      <TagManager />
+
+      <DataCard />
 
       <section className="card" aria-labelledby="about-heading">
         <h2 id="about-heading">About the method</h2>

@@ -88,6 +88,17 @@ a:hover {
     transition: none !important;
   }
 }
+/* The same, chosen in Settings. */
+html[data-reduce-motion] * {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+/* Expert mode (EXP-1): hide the guidance; the screens keep every control. */
+html[data-expert] .workspace__intro,
+html[data-expert] .help {
+  display: none;
+}
 
 /* Single-column grids: let tracks shrink below a field's intrinsic width
    (a text input's default size can exceed a 320px screen). */
@@ -1591,12 +1602,12 @@ mark {
 .th-sort:hover {
   color: var(--accent);
 }
-/* A long topic name mustn't widen the filter row on a phone. */
-.filters .toolbar__sort {
+/* A long topic or tag name mustn't widen a filter row on a phone. */
+.toolbar__sort {
   min-width: 0;
   max-width: 100%;
 }
-.filters .toolbar__sort select {
+.toolbar__sort select {
   flex: 0 1 auto;
   min-width: 0;
   text-overflow: ellipsis;
@@ -1783,4 +1794,314 @@ mark {
 }
 .status--cancelled {
   color: var(--muted);
+}
+
+/* ---------- Phase 5 ---------- */
+/* The top bar's switcher is a button styled like its neighbouring links. */
+button.topbar__tool {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 1.35rem;
+  cursor: pointer;
+}
+/* Three tools leave little room on the narrowest phones: keep the save
+   icon and Retry, and let screen readers keep the words. */
+@media (max-width: 400px) {
+  .save-indicator__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 0.35em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  font: inherit;
+  font-size: 0.85em;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Quick switcher */
+.switcher {
+  width: min(100% - 2rem, 640px);
+}
+@media (min-width: 640px) {
+  .switcher {
+    margin-top: 12vh;
+  }
+}
+.switcher__body {
+  gap: var(--space-2);
+}
+.switcher__body input {
+  font-size: 1.1rem;
+}
+.switcher__list {
+  display: grid;
+  gap: 2px;
+  max-height: min(55dvh, 480px);
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.switcher__option {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  column-gap: var(--space-2);
+  align-items: baseline;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+.switcher__option.is-active {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.switcher__kind {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.switcher__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.switcher__detail {
+  grid-column: 2;
+  font-size: 0.85rem;
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shortcut-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.shortcut-table th,
+.shortcut-table td {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--border-soft);
+  text-align: left;
+  vertical-align: top;
+}
+.shortcut-table thead th {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.shortcut-table th[scope='row'] {
+  white-space: nowrap;
+  font-weight: 400;
+}
+.shortcut-table .is-off {
+  color: var(--muted);
+}
+
+/* Tags */
+.tag-editor {
+  display: grid;
+  gap: var(--space-2);
+}
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 100%;
+  padding-left: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.tag > span {
+  overflow-wrap: anywhere;
+}
+.tag__remove {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.tag__remove:hover {
+  color: var(--danger);
+}
+.card__tags {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+.tag-rows {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.tag-row input {
+  /* A set width replaces the input's wide built-in size, so rows fit a 320px screen. */
+  flex: 1 1 8rem;
+  width: 8rem;
+  min-width: 0;
+}
+.tag-row__uses {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.tag-row .field__error {
+  flex-basis: 100%;
+}
+
+/* Settings */
+.check {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--space-3);
+  align-items: center;
+}
+.check input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent);
+}
+.check label {
+  font-weight: 700;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+}
+.check .field__hint {
+  grid-column: 2;
+  margin: 0;
+}
+.danger-zone {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+}
+.card h3 {
+  margin: var(--space-2) 0 0;
+}
+
+/* Setup lineage (branch / duplicate) */
+.setup-lineage {
+  display: grid;
+  gap: var(--space-2);
+}
+.setup-lineage p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.trash-item .button-row {
+  margin-top: var(--space-1);
+}
+
+/* Swipe actions (touch only; see SwipeRow.tsx) */
+.swipe {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+.swipe__actions {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: flex;
+}
+.swipe__action {
+  flex: 1;
+  border: 0;
+  background: var(--bar);
+  color: var(--on-bar);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.swipe__action + .swipe__action {
+  border-left: 1px solid var(--bar-deep);
+}
+.swipe__action--danger {
+  background: var(--danger);
+  color: var(--on-danger);
+}
+.plain-fieldset {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.plain-fieldset .segmented {
+  justify-self: start;
+}
+.swipe__content {
+  position: relative;
+  touch-action: pan-y;
+  background: var(--paper);
+}
+.swipe__content.is-settling {
+  transition: transform 0.18s ease;
+}
+
+/* Phones: the Mine's Back/Next stay in reach above the tab bar. */
+@media (max-width: 639px) {
+  .mine-footer {
+    position: sticky;
+    bottom: calc(56px + env(safe-area-inset-bottom));
+    z-index: 5;
+    margin: 0 calc(-1 * var(--space-2));
+    padding: var(--space-2);
+    background: var(--paper);
+    box-shadow: 0 -1px 0 var(--border-soft);
+  }
+  /* Keep focused fields clear of the sticky footer too (WCAG 2.4.11). */
+  html:has(.mine-footer) {
+    scroll-padding-bottom: 160px;
+  }
 }

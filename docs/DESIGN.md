@@ -607,6 +607,8 @@ Indexes: `(user_id, status, completed_at desc)`, `(topic_id)`, GIN trigram on `s
 - `tags(id, user_id, name ≤ 40, color, created_at)` with a unique index on `(user_id, lower(name))`.
 - `topic_tags(topic_id, tag_id, user_id)` and `joke_tags(joke_id, tag_id, user_id)`. The PK is the pair of ids. Composite ownership FKs as above.
 
+*As built (Phase 5):* the app changes an item's tags with `set_joke_tags(joke_id, names)` and `set_topic_tags(topic_id, names)`, which create missing tags, merge case-insensitive duplicates and replace the item's set in one call (at most 20 tags of up to 40 characters). `branch_setup(setup_id, copy_assumptions)` makes branches (wording only) and duplicates (with assumptions); both set `parent_setup_id`. `purge_trash()` runs nightly via pg_cron. `delete_account(confirm)` replaces the planned `DELETE /api/account`: it needs the confirmation phrase and a sign-in within 5 minutes, then deletes the auth user, which cascades to every row. Export is built in the browser instead of `GET /api/export`.
+
 #### `publications` (Phase 4)
 | Column | Type | Notes |
 |---|---|---|
@@ -1111,6 +1113,9 @@ Each phase ends with something deployed and usable. Sprints are 2 weeks for one 
 - **Risks and dependencies:** iOS share-target behavior varies; Google brand verification lead time for the Docs Joke Book.
 
 ### Phase 5 — Improved writing workflow (Sprints 7–8)
+
+> **Status (2026-10-31):** built and tested locally. See [`phase-5-review.md`](phase-5-review.md).
+
 - **Features:** quick switcher (⌘K), favorites everywhere, tags (topics and jokes), duplicate and branch setup, archive and Trash UI, keyboard shortcuts, Markdown/JSON export, PWA install and app-shell caching, mobile polish (swipe actions, sticky step footer, haptics where supported), Expert mode, account deletion.
 - **Database changes:** `tags`, `topic_tags`, `joke_tags`; `branch_setup()` RPC; `pg_cron` Trash purge.
 - **User stories:** NAV-2, NAV-3, ORG-1, ORG-2, ORG-3, A11Y-3, EXP-1.

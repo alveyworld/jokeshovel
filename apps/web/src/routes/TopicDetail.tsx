@@ -2,9 +2,11 @@ import { LIMITS } from '@jokeshovel/shared';
 import { NavLink, Outlet, useNavigate, useParams } from 'react-router';
 import { AutosaveField } from '../components/AutosaveField';
 import { StatChips } from '../components/StatChips';
+import { TagEditor } from '../components/TagEditor';
 import { ToggleButton } from '../components/ToggleButton';
 import { useToast } from '../components/Toasts';
 import { useAssociations, useMutations, useSetups, useTopic, useTopicSummaries } from '../data/hooks';
+import { useTagActions, useTags } from '../data/tags';
 import { useRememberLocation } from '../data/useRememberLocation';
 
 export function TopicDetail() {
@@ -15,6 +17,8 @@ export function TopicDetail() {
   const { setups } = useSetups(topicId);
   const { update, softDelete, restore, setArchived } = useMutations();
   const { showToast } = useToast();
+  const { tags, topicTags } = useTags();
+  const { setTopicTags } = useTagActions();
   const navigate = useNavigate();
   useRememberLocation(topic ? topic.title || 'Untitled topic' : null);
 
@@ -96,6 +100,7 @@ export function TopicDetail() {
           maxLength={LIMITS.topicDescription}
           placeholder="What about it interests you? (optional)"
         />
+        <TagEditor tags={topicTags(topic.id)} all={tags} onChange={(names) => setTopicTags(topic.id, names)} />
         <div className="topic-head__meta">
           <StatChips topic={stats} />
           <div className="topic-head__actions">

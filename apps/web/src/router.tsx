@@ -6,19 +6,29 @@ import { Associations } from './routes/Associations';
 import { Drafts } from './routes/Drafts';
 import { AuthCallback } from './routes/AuthCallback';
 import { Home } from './routes/Home';
-import { JokeDetail } from './routes/JokeDetail';
 import { Jokes } from './routes/Jokes';
 import { Mine } from './routes/Mine';
 import { NotFound } from './routes/NotFound';
-import { Search } from './routes/Search';
-import { Settings } from './routes/Settings';
 import { SetupDetail } from './routes/SetupDetail';
 import { Setups } from './routes/Setups';
 import { SignIn } from './routes/SignIn';
-import { Stats } from './routes/Stats';
 import { TopicDetail } from './routes/TopicDetail';
 import { TopicJokes } from './routes/TopicJokes';
 import { Topics } from './routes/Topics';
+
+// Less-used screens load on demand to keep the first download small.
+const lazyRoutes = {
+  jokeDetail: () => import('./routes/JokeDetail').then((m) => ({ Component: m.JokeDetail })),
+  search: () => import('./routes/Search').then((m) => ({ Component: m.Search })),
+  settings: () => import('./routes/Settings').then((m) => ({ Component: m.Settings })),
+  stats: () => import('./routes/Stats').then((m) => ({ Component: m.Stats })),
+  trash: () => import('./routes/Trash').then((m) => ({ Component: m.Trash })),
+};
+
+/** Fetch the on-demand screens once the app is idle, so they're cached for offline use. */
+export function preloadRoutes() {
+  for (const load of Object.values(lazyRoutes)) void load().catch(() => undefined);
+}
 
 export const router = createBrowserRouter([
   { path: '/signin', element: <SignIn /> },
@@ -48,10 +58,11 @@ export const router = createBrowserRouter([
       { path: 'a/:attemptId/:step?', element: <Mine /> },
       { path: 'drafts', element: <Drafts /> },
       { path: 'jokes', element: <Jokes /> },
-      { path: 'j/:jokeId', element: <JokeDetail /> },
-      { path: 'search', element: <Search /> },
-      { path: 'stats', element: <Stats /> },
-      { path: 'settings', element: <Settings /> },
+      { path: 'j/:jokeId', lazy: lazyRoutes.jokeDetail },
+      { path: 'search', lazy: lazyRoutes.search },
+      { path: 'stats', lazy: lazyRoutes.stats },
+      { path: 'trash', lazy: lazyRoutes.trash },
+      { path: 'settings', lazy: lazyRoutes.settings },
       { path: '*', element: <NotFound /> },
     ],
   },

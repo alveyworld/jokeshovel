@@ -12,6 +12,24 @@ export {
   type KeywordInput,
 } from './keywords';
 export {
+  EXPORT_FORMAT,
+  EXPORT_TABLES,
+  EXPORT_VERSION,
+  ExportError,
+  TAG_MAX,
+  buildExport,
+  cleanTagName,
+  exportToMarkdown,
+  mdText,
+  parseExport,
+  serializeExport,
+  uniqueTagNames,
+  type ExportData,
+  type ExportFile,
+  type ExportTable,
+  type RawExportData,
+} from './export';
+export {
   DEFAULT_INCLUDE,
   formatNoteBody,
   formatNoteDate,
@@ -36,6 +54,9 @@ export type JokeAttempt = Tables['joke_attempts']['Row'];
 export type Reinterpretation = Tables['reinterpretations']['Row'];
 export type Joke = Tables['jokes']['Row'];
 export type Publication = Tables['publications']['Row'];
+export type Tag = Tables['tags']['Row'];
+export type TopicTag = Tables['topic_tags']['Row'];
+export type JokeTag = Tables['joke_tags']['Row'];
 export type SearchResult = Database['public']['Functions']['search_all']['Returns'][number];
 export type AttemptStep = Database['public']['Enums']['attempt_step'];
 export type TopicStats = Database['public']['Views']['topic_stats']['Row'];

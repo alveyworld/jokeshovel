@@ -151,6 +151,12 @@ psql "$SCRATCH_DB_URL" -c 'set session_replication_role = replica' -f backup/dat
 
 Do a restore drill into a scratch project once a quarter.
 
+## Trash, account deletion and backups
+
+- **Trash purge:** the `purge-trash` pg_cron job runs nightly at 03:23 UTC and hard-deletes rows deleted more than 30 days ago. Check it in the Supabase dashboard under _Integrations → Cron_ (or `select * from cron.job_run_details order by start_time desc limit 5;`).
+- **Account deletion** (Settings → Your data) removes the auth user and every row they own at once. Nightly backups made before that still contain their data until the R2 lifecycle rule expires them (30 days). If a user asks for their data to be gone from backups sooner, delete the backup objects from the bucket by hand.
+- **Installable app:** nothing to configure. `apps/web/public/sw.js` caches only the app's own files (never `/api/*` or Supabase), and `_headers` serves it with `Cache-Control: no-cache` so new versions arrive straight away. To force an update, change `VERSION` in `sw.js`.
+
 ## Supabase Free plan notes
 
 - No managed backups: the nightly workflow above is the backup.

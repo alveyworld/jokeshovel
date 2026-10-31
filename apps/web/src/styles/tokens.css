@@ -3,6 +3,7 @@
    Text colours meet WCAG AA (4.5:1) on --paper and --surface in both themes;
    borders and focus rings meet 3:1. Bar colours are checked against --bar. */
 :root {
+  color-scheme: light;
   /* Legal pad */
   --paper: #f3ee8a;
   --paper-line: rgb(89 161 145 / 0.55);
@@ -33,6 +34,7 @@
   --on-accent: #fffdf2;
   --gold: #8a6100;
   --danger: #a51d2d;
+  --on-danger: #ffffff;
   --success: #1f6b45;
   --warning: #8a5a00;
   --focus: #1a5fb4;
@@ -66,9 +68,12 @@
   }
 }
 
-/* "Night pad": the same pad after dark. */
+/* "Night pad": the same pad after dark. It follows the device unless the
+   user picks Light or Dark in Settings (html[data-theme], set by
+   src/lib/preferences.ts). The two blocks below must stay identical. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
     --paper: #23221c;
     --paper-line: rgb(89 161 145 / 0.25);
     --margin-red: #7a3336;
@@ -87,6 +92,7 @@
     --on-accent: #1e1d20;
     --gold: #f2c14e;
     --danger: #ff8a8a;
+    --on-danger: #1e1d20;
     --success: #74d39f;
     --warning: #f2c14e;
     --focus: #8ab8f5;
@@ -97,4 +103,36 @@
     --chart-grid: #45412f;
     --shadow: none;
   }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #23221c;
+  --paper-line: rgb(89 161 145 / 0.25);
+  --margin-red: #7a3336;
+
+  --bar: #2b2b2b;
+  --bar-deep: #1a1a1a;
+
+  --surface: #2e2c24;
+  --surface-2: #38352b;
+  --text: #f3eed6;
+  --muted: #c9c2a6;
+  --border: #8a8370;
+  --border-soft: #45412f;
+  --accent: #e3a77c;
+  --accent-hover: #edbf9c;
+  --on-accent: #1e1d20;
+  --gold: #f2c14e;
+  --danger: #ff8a8a;
+  --on-danger: #1e1d20;
+  --success: #74d39f;
+  --warning: #f2c14e;
+  --focus: #8ab8f5;
+  --toast-bg: #f3eed6;
+  --toast-text: #1e1d20;
+  --chart-1: #d27a2c;
+  --chart-1-hover: #bd6823; /* the light step is out of band on the dark surface */
+  --chart-grid: #45412f;
+  --shadow: none;
 }
