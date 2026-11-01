@@ -20,6 +20,20 @@ async function finishedJoke(page: Page) {
   await expect(page).toHaveURL(/\/j\/[^/]+$/);
 }
 
+/**
+ * Adds tags and waits until the server has them. Tags save straight to the
+ * server, so the chips can show before the save lands; a reload or export
+ * right after the click would otherwise race it.
+ */
+async function addTags(page: Page, names: string) {
+  await page.getByRole('combobox', { name: 'Add a tag' }).fill(names);
+  await Promise.all([
+    page.waitForResponse((r) => /\/rpc\/set_(joke|topic)_tags/.test(r.url()) && r.request().method() === 'POST'),
+    page.getByRole('button', { name: 'Add tag' }).click(),
+  ]);
+  await expect(page.getByText('Saving tags…')).toHaveCount(0);
+}
+
 /** Clicks somewhere neutral so single-key shortcuts aren't typed into a field. */
 const blur = (page: Page) => page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
 
@@ -119,23 +133,21 @@ test('tags on jokes and topics, filters, rename and delete (ORG-1)', async ({ pa
   await signIn(page);
   // Tagging a topic the moment it's created (it may still be in the save queue).
   await createTopic(page, 'Weddings');
-  await page.getByRole('combobox', { name: 'Add a tag' }).fill('Family');
-  await page.getByRole('button', { name: 'Add tag' }).click();
+  await addTags(page, 'Family');
   await expect(page.getByRole('list', { name: 'Tags' })).toContainText('Family');
 
   await finishedJoke(page);
 
   const tags = page.getByRole('list', { name: 'Tags' });
-  await page.getByRole('combobox', { name: 'Add a tag' }).fill('Opener, clean set, opener');
-  await page.getByRole('button', { name: 'Add tag' }).click();
+  await addTags(page, 'Opener, clean set, opener');
   await expect(tags.getByRole('listitem')).toHaveText([/clean set/, /Opener/]);
   await page.reload();
   await expect(page.getByRole('list', { name: 'Tags' }).getByRole('listitem')).toHaveCount(2);
 
   // A second joke without tags, then filter.
   await page.getByRole('link', { name: 'Airports' }).first().click();
-  await page.getByRole('combobox', { name: 'Add a tag' }).fill('Travel');
-  await page.getByRole('button', { name: 'Add tag' }).click();
+  await expect(page.getByRole('textbox', { name: 'Topic title', exact: true })).toHaveValue('Airports');
+  await addTags(page, 'Travel');
   await expect(page.getByRole('list', { name: 'Tags' })).toContainText('Travel');
   await mainNav(page, 'Topics');
   await expect(page.getByRole('link', { name: /Airports/ })).toContainText('Travel');
@@ -219,8 +231,7 @@ test('the Trash restores work and deletes it for good (ERR-3, ORG-2)', async ({ 
 test('export to Markdown and JSON, and the JSON reads back (ORG-3)', async ({ page }) => {
   await signIn(page);
   await finishedJoke(page);
-  await page.getByRole('combobox', { name: 'Add a tag' }).fill('Opener');
-  await page.getByRole('button', { name: 'Add tag' }).click();
+  await addTags(page, 'Opener');
   await expect(page.getByRole('list', { name: 'Tags' })).toContainText('Opener');
   await settings(page);
 
@@ -333,8 +344,7 @@ test('no serious accessibility violations on Phase 5 screens', async ({ page }) 
   };
   await signIn(page);
   await finishedJoke(page);
-  await page.getByRole('combobox', { name: 'Add a tag' }).fill('Opener');
-  await page.getByRole('button', { name: 'Add tag' }).click();
+  await addTags(page, 'Opener');
   await expect(page.getByRole('list', { name: 'Tags' })).toContainText('Opener');
   await check('joke card with tags');
   await page.keyboard.press('Control+k');
@@ -358,8 +368,7 @@ test('Phase 5 screens fit a 320px phone', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   await signIn(page);
   await finishedJoke(page);
-  await page.getByRole('combobox', { name: 'Add a tag' }).fill('A rather long tag name about sets');
-  await page.getByRole('button', { name: 'Add tag' }).click();
+  await addTags(page, 'A rather long tag name about sets');
   const overflow = () =>
     page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(await overflow(), 'joke card').toBeLessThanOrEqual(0);
