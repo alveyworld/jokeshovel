@@ -20,6 +20,8 @@ export function TagEditor({ tags, all, onChange, label = 'Tags' }: Props) {
   const names = [...(pending ?? tags.map((t) => t.name))].sort((a, b) =>
     a.localeCompare(b, undefined, { sensitivity: 'base' }),
   );
+  // One save at a time, so a quick second change can't be overwritten by the first.
+  const saving = pending !== null;
   const suggestions = all.filter((t) => !names.some((n) => n.toLowerCase() === t.name.toLowerCase()));
 
   const save = async (next: string[]) => {
@@ -32,6 +34,7 @@ export function TagEditor({ tags, all, onChange, label = 'Tags' }: Props) {
 
   const add = (e: FormEvent) => {
     e.preventDefault();
+    if (saving) return;
     // "Opener, clean set" adds two tags.
     const added = text.split(',').map(cleanTagName).filter(Boolean);
     if (!added.length) return;
@@ -57,6 +60,7 @@ export function TagEditor({ tags, all, onChange, label = 'Tags' }: Props) {
                 type="button"
                 className="tag__remove"
                 aria-label={`Remove tag “${name}”`}
+                disabled={saving}
                 onClick={() => save(names.filter((n) => n !== name))}
               >
                 <span aria-hidden="true">×</span>
@@ -81,7 +85,7 @@ export function TagEditor({ tags, all, onChange, label = 'Tags' }: Props) {
           maxLength={TAG_MAX * 3}
           autoComplete="off"
         />
-        <button type="submit" className="btn btn--small" disabled={!text.trim()} aria-label="Add tag">
+        <button type="submit" className="btn btn--small" disabled={!text.trim() || saving} aria-label="Add tag">
           Add
         </button>
       </form>
@@ -90,6 +94,10 @@ export function TagEditor({ tags, all, onChange, label = 'Tags' }: Props) {
           <option key={t.id} value={t.name} />
         ))}
       </datalist>
+      {/* Tags save straight to the server (not the save queue), so say when they're on their way. */}
+      <p className="field__hint tag-editor__status" role="status">
+        {saving ? 'Saving tags…' : ''}
+      </p>
       {error ? (
         <p className="field__error" role="alert">
           {error}
