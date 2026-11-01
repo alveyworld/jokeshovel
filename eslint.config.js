@@ -8,6 +8,7 @@ export default tseslint.config(
   {
     ignores: [
       '**/dist/**',
+      '**/dist-e2e/**',
       '**/node_modules/**',
       '**/.wrangler/**',
       '**/test-results/**',
@@ -28,6 +29,10 @@ export default tseslint.config(
       // Autofocus is deliberate on brainstorm inputs (rapid capture).
       'jsx-a11y/no-autofocus': 'off',
     },
+  },
+  {
+    files: ['apps/web/public/sw.js'],
+    languageOptions: { globals: globals.serviceworker },
   },
   {
     files: ['worker/**/*.ts', 'apps/web/e2e/**/*.ts', '*.config.{js,ts}', 'apps/web/*.config.ts'],

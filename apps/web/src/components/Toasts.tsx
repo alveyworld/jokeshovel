@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 interface Toast {
   id: number;
@@ -16,11 +16,21 @@ interface ToastInput {
   durationMs?: number;
 }
 
-const ToastContext = createContext<{ showToast(t: ToastInput): void } | null>(null);
+interface ToastApi {
+  showToast(t: ToastInput): void;
+  /** Runs the newest toast's action (Undo) if one is showing. For ⌘/Ctrl-Z. */
+  undoLast(): boolean;
+}
+
+const ToastContext = createContext<ToastApi | null>(null);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const nextId = useRef(1);
+  const current = useRef<Toast[]>([]);
+  useEffect(() => {
+    current.current = toasts;
+  }, [toasts]);
 
   const dismiss = useCallback((id: number) => setToasts((list) => list.filter((t) => t.id !== id)), []);
 
@@ -33,7 +43,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     [dismiss],
   );
 
-  const value = useMemo(() => ({ showToast }), [showToast]);
+  const undoLast = useCallback(() => {
+    const last = [...current.current].reverse().find((t) => t.onAction && t.actionLabel);
+    if (!last) return false;
+    last.onAction?.();
+    dismiss(last.id);
+    return true;
+  }, [dismiss]);
+
+  const value = useMemo(() => ({ showToast, undoLast }), [showToast, undoLast]);
 
   return (
     <ToastContext.Provider value={value}>

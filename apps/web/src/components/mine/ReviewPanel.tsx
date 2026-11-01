@@ -2,6 +2,7 @@ import { LIMITS, suggestTitle } from '@jokeshovel/shared';
 import { useId, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useAssociations, useAttemptJoke, useCompleteAttempt, useTopic } from '../../data/hooks';
+import { haptic } from '../../lib/haptics';
 import { useToast } from '../Toasts';
 import type { PanelProps } from './Panels';
 
@@ -39,6 +40,7 @@ export function ReviewPanel({ attempt, setup, target, chosen }: PanelProps) {
       setError(result.message);
       return;
     }
+    haptic(30);
     showToast({ message: `Nugget! “${result.joke.title || 'Your joke'}” is in your jokes.` });
     navigate(`/j/${result.joke.id}`);
   };

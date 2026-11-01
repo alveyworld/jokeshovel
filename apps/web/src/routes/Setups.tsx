@@ -121,7 +121,7 @@ export function Setups() {
         )}
       </aside>
 
-      <button type="button" className="btn btn--primary" onClick={add}>
+      <button type="button" className="btn btn--primary" data-shortcut="new" onClick={add}>
         + New setup
       </button>
 

@@ -42,6 +42,11 @@ export function SignIn() {
           <img src={wordmark} alt="" className="signin__wordmark" width={353} height={220} />
         </p>
         <p className="signin__tagline">Every topic is a dig site. Keep shoveling and you’ll hit a joke.</p>
+        {params.get('deleted') ? (
+          <p className="notice" role="status">
+            Your account and everything in it has been deleted.
+          </p>
+        ) : null}
         {error ? (
           <p className="field__error" role="alert">
             {error}

@@ -4,11 +4,13 @@ import { Link, NavLink, useNavigate, useParams } from 'react-router';
 import { AutosaveField } from '../components/AutosaveField';
 import { PublishHistory } from '../components/PublishHistory';
 import { PublishSheet } from '../components/PublishSheet';
+import { TagEditor } from '../components/TagEditor';
 import { Rating } from '../components/Rating';
 import { ToggleButton } from '../components/ToggleButton';
 import { useToast } from '../components/Toasts';
 import { useJoke, useMutations, useTopic } from '../data/hooks';
 import { sentToKeep, usePublications } from '../data/publishing';
+import { useTagActions, useTags } from '../data/tags';
 import { useRememberLocation } from '../data/useRememberLocation';
 
 export function JokeDetail() {
@@ -42,6 +44,8 @@ function JokeDetailBody({ joke }: { joke: Joke }) {
   const { publications } = usePublications();
   const inKeep = sentToKeep(publications, joke.id);
   const [publishing, setPublishing] = useState(false);
+  const { tags, jokeTags } = useTags();
+  const { setJokeTags } = useTagActions();
 
   const remove = () => {
     softDelete('jokes', joke.id);
@@ -130,6 +134,8 @@ function JokeDetailBody({ joke }: { joke: Joke }) {
         />
         <Rating value={joke.rating} onChange={(rating) => update('jokes', joke.id, { rating })} />
       </div>
+
+      <TagEditor tags={jokeTags(joke.id)} all={tags} onChange={(names) => setJokeTags(joke.id, names)} />
 
       <AutosaveField
         table="jokes"

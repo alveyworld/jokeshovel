@@ -5,7 +5,17 @@ import { relativeTime } from '../lib/time';
 import { Stars } from './Rating';
 
 /** A link card for one completed joke. */
-export function JokeCard({ joke, topicTitle, inKeep }: { joke: Joke; topicTitle?: string; inKeep?: boolean }) {
+export function JokeCard({
+  joke,
+  topicTitle,
+  inKeep,
+  tags = [],
+}: {
+  joke: Joke;
+  topicTitle?: string;
+  inKeep?: boolean;
+  tags?: readonly string[];
+}) {
   return (
     <Link to={`/j/${joke.id}`} className="card card--link joke-row">
       {topicTitle ? <span className="card__eyebrow">{topicTitle}</span> : null}
@@ -20,6 +30,7 @@ export function JokeCard({ joke, topicTitle, inKeep }: { joke: Joke; topicTitle?
       </span>
       <span className="card__desc">{excerpt(joke.setup_text, 120)}</span>
       <span className="joke-row__punch">{excerpt(joke.punch_text, 120)}</span>
+      {tags.length ? <span className="card__tags">{tags.join(' · ')}</span> : null}
       <span className="card__meta">
         <Stars value={joke.rating} />
         {joke.rating ? ' · ' : ''}

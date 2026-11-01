@@ -131,7 +131,7 @@ function MineBody({ attempt, step }: { attempt: JokeAttempt; step: MineStepKey }
 
       <nav className="mine-footer" aria-label="Step navigation">
         {prev ? (
-          <Link to={`/a/${attempt.id}/${prev.key}`} className="btn">
+          <Link to={`/a/${attempt.id}/${prev.key}`} className="btn" data-shortcut="prev-step">
             <span aria-hidden="true">‹</span> {prev.label}
           </Link>
         ) : (
@@ -140,7 +140,7 @@ function MineBody({ attempt, step }: { attempt: JokeAttempt; step: MineStepKey }
           </Link>
         )}
         {next ? (
-          <Link to={`/a/${attempt.id}/${next.key}`} className="btn btn--primary">
+          <Link to={`/a/${attempt.id}/${next.key}`} className="btn btn--primary" data-shortcut="next-step">
             Next: {next.label} <span aria-hidden="true">›</span>
           </Link>
         ) : (

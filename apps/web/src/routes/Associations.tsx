@@ -68,6 +68,7 @@ export function Associations() {
         <div className="inline-form__row">
           <input
             id="new-association"
+            data-shortcut="new"
             ref={inputRef}
             type="text"
             value={draft}
@@ -82,7 +83,7 @@ export function Associations() {
             Add
           </button>
         </div>
-        <p id="new-association-hint" className="field__hint">
+        <p id="new-association-hint" className="field__hint help">
           Press Enter to add and keep going.
         </p>
       </form>

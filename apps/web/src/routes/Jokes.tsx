@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { JokeCard } from '../components/JokeCard';
 import { useJokes, useTopicSummaries } from '../data/hooks';
 import { sentToKeep, usePublications } from '../data/publishing';
+import { useTags } from '../data/tags';
 
 type Show = 'all' | 'favorites' | 'archived';
 type Sort = 'newest' | 'rating' | 'topic';
@@ -19,6 +20,8 @@ export function Jokes() {
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState<Sort>('newest');
   const [keep, setKeep] = useState<KeepFilter>('any');
+  const [tagId, setTagId] = useState('');
+  const { tags, jokeTags } = useTags();
   const { publications } = usePublications();
   const inKeep = new Set(jokes.filter((j) => sentToKeep(publications, j.id)).map((j) => j.id));
 
@@ -38,9 +41,10 @@ export function Jokes() {
     .filter((j) => !topicId || j.topic_id === topicId)
     .filter((j) => !minRating || (j.rating ?? 0) >= minRating)
     .filter((j) => keep === 'any' || (keep === 'sent') === inKeep.has(j.id))
+    .filter((j) => !tagId || jokeTags(j.id).some((t) => t.id === tagId))
     .sort(sorts[sort]);
 
-  const filtered = show !== 'all' || topicId || minRating || keep !== 'any';
+  const filtered = show !== 'all' || topicId || minRating || keep !== 'any' || tagId;
   const usedTopics = topics.filter((t) => jokes.some((j) => j.topic_id === t.id));
 
   return (
@@ -85,6 +89,19 @@ export function Jokes() {
             <option value={5}>5 stars</option>
           </select>
         </label>
+        {tags.length ? (
+          <label className="toolbar__sort">
+            <span>Tag</span>
+            <select value={tagId} onChange={(e) => setTagId(e.target.value)}>
+              <option value="">Any</option>
+              {tags.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         <label className="toolbar__sort">
           <span>Keep</span>
           <select value={keep} onChange={(e) => setKeep(e.target.value as KeepFilter)}>
@@ -113,15 +130,20 @@ export function Jokes() {
         <ul className="card-list" aria-label={`${shown.length} ${shown.length === 1 ? 'joke' : 'jokes'}`}>
           {shown.map((j) => (
             <li key={j.id}>
-              <JokeCard joke={j} topicTitle={titleOf(j)} inKeep={inKeep.has(j.id)} />
+              <JokeCard
+                joke={j}
+                topicTitle={titleOf(j)}
+                inKeep={inKeep.has(j.id)}
+                tags={jokeTags(j.id).map((t) => t.name)}
+              />
             </li>
           ))}
         </ul>
       ) : jokes.length && filtered ? (
         <p className="empty">
-          {show === 'favorites' && !topicId && !minRating && keep === 'any'
+          {show === 'favorites' && !topicId && !minRating && keep === 'any' && !tagId
             ? 'No favorites yet. Tap the heart on a joke to add it here.'
-            : show === 'archived' && !topicId && !minRating && keep === 'any'
+            : show === 'archived' && !topicId && !minRating && keep === 'any' && !tagId
               ? 'No archived jokes.'
               : 'No jokes match these filters.'}
         </p>

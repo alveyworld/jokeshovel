@@ -28,6 +28,7 @@ export function NewTopicForm({ autoFocus }: { autoFocus?: boolean }) {
       </label>
       <div className="inline-form__row">
         <input
+          data-shortcut="new"
           id={id}
           type="text"
           value={title}
