@@ -63,13 +63,15 @@ Everything runs on free tiers (docs/DESIGN.md §18.1).
 
 1. **Supabase.** Create a project (Free plan). Note the project ref, URL, anon key and database password.
    - _Authentication → Sign In / Providers:_ enable **Google**; **disable Email** (the dev sign-in must never work in production).
-   - _Authentication → URL Configuration:_ Site URL = your Workers URL (e.g. `https://jokeshovel.<account>.workers.dev`); add `<site>/auth/callback` to Redirect URLs.
+   - _Authentication → URL Configuration:_ Site URL = your Workers URL (e.g. `https://jokeshovel.<account>.workers.dev`); add `<site>/auth/callback` to Redirect URLs. Site URL has its own **Save** button; reload the page to check both values stuck.
 2. **Google Cloud.** Create a project → _Google Auth Platform_:
    - Branding: app name "The Joke Shovel", support email, privacy policy URL.
    - Audience: External. Data access: scopes `openid`, `email`, `profile` only.
-   - Clients → Web application. Authorized redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback`.
-   - Paste the client ID and secret into Supabase's Google provider.
-   - Basic scopes don't need verification. Before Phase 4 (Google Docs Joke Book) switch publishing status to **In production** and complete brand verification.
+   - Audience → **Test users:** add your own Google account. While the app is in **Testing**, only listed test users (up to 100) can sign in.
+   - Clients → Web application. Under **Authorized redirect URIs** (not JavaScript origins): `https://<project-ref>.supabase.co/auth/v1/callback`.
+   - Paste the client ID and secret into Supabase's Google provider. Google shows the secret only once; if you lose it, use **Add secret** on the client page.
+   - Basic scopes don't need verification. To let anyone sign in, and before turning on the Google Docs Joke Book, switch publishing status to **In production** and complete brand verification.
+   - If sign-in fails, see [Troubleshooting](#troubleshooting).
 3. **Cloudflare.** Create an API token with the _Edit Cloudflare Workers_ template. Note the account ID.
 4. **GitHub → Settings → Secrets and variables → Actions.**
 
@@ -91,8 +93,9 @@ Everything runs on free tiers (docs/DESIGN.md §18.1).
    - Create an R2 bucket (e.g. `jokeshovel-backups`) with a 30-day lifecycle rule, and an R2 API token with write access to it.
    - `age-keygen -o jokeshovel-backup.key` on your own machine. Keep the key file offline (password manager); it is the only way to read backups.
    - Variables: `BACKUP_ENABLED=true`, `R2_BACKUP_BUCKET`, `BACKUP_AGE_RECIPIENT` (the `age1…` public key).
-   - Secrets: `SUPABASE_DB_URL` (Session pooler connection string from _Connect_), `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`.
+   - Secrets: `SUPABASE_DB_URL` (Session pooler connection string from _Connect_; GitHub runners can't reach the direct connection), `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`.
    - Run _Actions → Nightly backup → Run workflow_ once to check it.
+   - Check your key opens it: download the file from the bucket in the Cloudflare dashboard and run `age -d -i jokeshovel-backup.key jokeshovel-<timestamp>.tar.gz.age | tar tz`. It should list `backup/schema.sql`, `backup/roles.sql` and `backup/data.sql`.
 
 6. **Publishing to Keep needs no setup.** Share to Keep and Copy & open Keep run in the browser. Before calling Phase 4 done, check them by hand on real devices:
    - Android, Chrome: a joke card → **Publish to Keep** → **Share to Keep** → pick Keep. The note opens with the title and body filled in. Save, answer **Yes**, and the card shows "Sent to Keep".
@@ -164,6 +167,31 @@ Do a restore drill into a scratch project once a quarter.
   which should keep it active. A paused project can be restored from the dashboard.
 - Limits worth watching monthly: 500 MB database, 50,000 monthly active users;
   Cloudflare Workers Free: 100,000 requests/day.
+
+## Troubleshooting
+
+### Production sign-in
+
+Work through these in order; each fix gets you one step further.
+
+| What you see | Cause | Fix |
+| --- | --- | --- |
+| `{"code":400,"error_code":"validation_failed","msg":"Unsupported provider: provider is not enabled"}` after **Continue with Google** | Google is off in Supabase. | Supabase → _Authentication → Sign In / Providers → Google_: enable it, paste the client ID and secret, **Save**. |
+| Google: **Error 400: redirect_uri_mismatch** | The Google client doesn't allow Supabase's callback. | Google Cloud → _Google Auth Platform → Clients_ → the client whose ID is in Supabase → **Authorized redirect URIs** (not JavaScript origins): `https://<project-ref>.supabase.co/auth/v1/callback`, exactly (`https`, no trailing slash). Changes can take a few minutes. Google's **error details** link shows the `redirect_uri` it received. |
+| Google: **Access blocked** or `access_denied` | The app is in Testing and this account isn't a test user. | _Audience → Test users_: add the account, or publish the app (step 2 of the setup). |
+| Google: **Google hasn't verified this app** | Expected while the app is in Testing. | Click **Continue**. |
+| Redirected to `http://localhost:3000/?error=server_error…Unable to exchange external code` | Supabase couldn't swap Google's code for a token: the client secret in Supabase is wrong (a typo, a stray space, or another client's secret). | Google client page → **Add secret**; paste it into Supabase's Google provider with no surrounding spaces, and check the Client ID comes from the same client. The `localhost` part is the next row. |
+| Redirected to `http://localhost:3000/?code=…` (**This site can't be reached**) | Sign-in worked, but Supabase didn't find the app's callback on its allow list, so it fell back to its default Site URL. | Supabase → _Authentication → URL Configuration_: **Site URL** = `APP_BASE_URL` (it has its own **Save**); **Redirect URLs** contains exactly `<APP_BASE_URL>/auth/callback`. Reload the page to check, then sign in again. The code in the address is single-use and can be ignored. |
+
+### Workflows
+
+| What you see | Cause | Fix |
+| --- | --- | --- |
+| **Deploy** or **Nightly backup** runs show as _skipped_ | The `DEPLOY_ENABLED` / `BACKUP_ENABLED` repository variable isn't `true`. | Set it under _Settings → Secrets and variables → Actions → Variables_. |
+| Backup log: `pg_dump: warning: there are circular foreign-key constraints` on `setups`, `joke_attempts`, `reinterpretations` | Expected. A setup can point to the setup it was branched from, and attempts and reinterpretations point at each other, so a data-only dump can't be loaded with those checks on. | Nothing. The restore command loads `data.sql` with `session_replication_role = replica`, which skips those checks ([Restoring a backup](#restoring-a-backup)). |
+
+Local errors such as "Could not find the function … in the schema cache" are
+covered in [After pulling new code](#after-pulling-new-code).
 
 ## Secrets
 
