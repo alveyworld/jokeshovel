@@ -188,6 +188,7 @@ Work through these in order; each fix gets you one step further.
 | What you see | Cause | Fix |
 | --- | --- | --- |
 | **Deploy** or **Nightly backup** runs show as _skipped_ | The `DEPLOY_ENABLED` / `BACKUP_ENABLED` repository variable isn't `true`. | Set it under _Settings → Secrets and variables → Actions → Variables_. |
+| **Deploy** fails at `supabase db push`: `password authentication failed for user "postgres" (SQLSTATE 28P01)` | The `SUPABASE_DB_PASSWORD` secret doesn't match the database password, usually because the password was reset. Nothing was deployed, so the live app is unchanged. | Update the `SUPABASE_DB_PASSWORD` secret (and the password inside `SUPABASE_DB_URL`, if it changed), then _Actions → Deploy → Run workflow_. |
 | Backup log: `pg_dump: warning: there are circular foreign-key constraints` on `setups`, `joke_attempts`, `reinterpretations` | Expected. A setup can point to the setup it was branched from, and attempts and reinterpretations point at each other, so a data-only dump can't be loaded with those checks on. | Nothing. The restore command loads `data.sql` with `session_replication_role = replica`, which skips those checks ([Restoring a backup](#restoring-a-backup)). |
 
 Local errors such as "Could not find the function … in the schema cache" are
