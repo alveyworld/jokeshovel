@@ -4,7 +4,29 @@ A mobile-first workbench that helps comedians dig from a broad **topic** to a fi
 
 ## Status
 
-Built and tested locally; **not deployed yet** (needs the one-time account setup in the runbook).
+All five planned phases are built and **deployed**.
+
+### Deployment
+
+**Live:** <https://jokeshovel.zack-alvey.workers.dev>. Everything runs on free tiers.
+
+| Piece | Where | State |
+| --- | --- | --- |
+| App and `/api` | Cloudflare Workers | Live. Every merge to `main` deploys automatically once CI passes. |
+| Database and sign-in | Supabase (Free plan) | Live. Migrations through Phase 5 are applied. Google sign-in works. |
+| Google sign-in app | Google Auth Platform | In **Testing**: only accounts listed under _Audience → Test users_ (up to 100) can sign in. |
+| Backups | GitHub Actions → Cloudflare R2 | Nightly at 09:17 UTC, encrypted with `age`, kept 30 days. |
+| Google Docs Joke Book | Worker, behind `FEATURE_DOCS_SYNC` | Off. |
+
+Still to do:
+
+- **Publish the Google app** (_Audience → Publish app_) so anyone can sign in. This is also needed before the Docs Joke Book can be turned on.
+- **Check Share to Keep on a real Android phone** (Chrome). It's only been tested with a stand-in share sheet ([runbook](docs/RUNBOOK.md#one-time-production-setup), step 6).
+- **Optional:** turn on the Docs Joke Book ([runbook](docs/RUNBOOK.md#optional-google-docs-joke-book)).
+
+Setup, deploys, rollback, restores and troubleshooting are in [`docs/RUNBOOK.md`](docs/RUNBOOK.md).
+
+### Features
 
 - **Sprint 1:** Google sign-in, topics, association lists, setups, autosave that survives closed tabs and lost connections, topic counts, and "Resume digging".
 - **Phase 2, the Joke Mine:** list a setup's assumptions, then take a joke attempt step by step: target, connector (tap words in the setup), reinterpretations, choice, second story, punch. Multiple attempts per setup, a "thread so far" panel, and a Drafts tab.
@@ -12,7 +34,7 @@ Built and tested locally; **not deployed yet** (needs the one-time account setup
 - **Phase 4, publishing:** a Publish sheet with a predictable note title (`Topic — Keywords — Joke`, keyword chips, editable), optional "how I dug it" sections and a live preview; **Share to Keep** on phones and **Copy & open Keep** everywhere, with a "Did it save?" check, a publish history, and Keep counts on topics and Stats. An optional Google Docs "Joke Book" is built but off by default.
 - **Phase 5, workflow:** a ⌘K quick switcher, keyboard shortcuts with `?` help, tags on jokes and topics, branching and duplicating setups, a 30-day Trash, Markdown and JSON export, account deletion, Expert mode, a theme choice, swipe actions on phones, and an installable app that opens offline.
 
-All five planned phases are built. Next: deploy (the runbook's one-time setup), then the future ideas in `docs/DESIGN.md` §20.
+Next: the future ideas in `docs/DESIGN.md` §20.
 
 ## Repository layout
 
