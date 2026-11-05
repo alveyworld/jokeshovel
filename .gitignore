@@ -8,3 +8,6 @@ dist-e2e/
 supabase/.temp/
 test-results/
 playwright-report/
+
+# macOS Finder metadata
+.DS_Store
