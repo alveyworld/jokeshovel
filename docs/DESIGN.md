@@ -1149,6 +1149,7 @@ See §20.
 | ASSOC-2 | S | 1 | As a beginner, I want rotating prompt questions while I brainstorm, so that I don't run dry. |
 | ASSOC-3 | S | 1 | As a comedian, I want to star promising associations, so that I can find them when I write setups. |
 | ASSOC-4 | C | 5 | As a snacker, I want an optional 5-minute brainstorm timer, so that I can do a quick focused sprint. |
+| ASSOC-5 | S | 6 | As a comedian, I want to turn a promising association into its own topic, so that I can dig into it further without losing where it came from. |
 | **Setup creation** ||||
 | SET-1 | M | 1 | As a comedian, I want to write several setups under a topic, so that I have options to mine. |
 | SET-2 | S | 1 | As a comedian, I want to start a setup from selected associations, so that I can see my raw material while writing. |
@@ -1256,6 +1257,15 @@ Given/When/Then, grouped by phase. IDs are referenced in §13.
 - **AC-25 (PUB-5):** Joke detail lists each publication with method, status, and timestamp.
 - **AC-26 (ERR-1):** If the Google token is revoked, an API publish shows "Google access expired. Reconnect to publish." and the publication is `failed` with code `GOOGLE_RECONNECT_REQUIRED`.
 - **AC-27 (AUTH-5):** Connecting an integration shows Google consent for only the requested scope. Disconnecting revokes the token and removes the row.
+
+**Phase 6**
+- **AC-28 (ASSOC-5):** *Given* the topic "Airports" has the association "TSA", *when* I tap **Make it a topic** on that row, *then* a new active topic titled "TSA" is created, I land on its Associations screen with the input focused, and Back returns me to the Airports associations. The new topic starts empty: no description, tags or associations are copied.
+- **AC-29 (ASSOC-5):** "TSA" stays in the Airports list and the Airports association count doesn't change. Its row shows a link to the new topic, and the new topic shows "From Airports › TSA", linking back.
+- **AC-30 (ASSOC-5):** Tapping **Make it a topic** again on the same association opens the existing topic instead of making another. A double tap or a retry after a lost connection creates exactly one topic.
+- **AC-31 (ASSOC-5):** If I already have an active topic with the same title (ignoring case), I'm asked whether to open it or create another. An association longer than 120 characters (the topic title limit) becomes a title cut at the last whole word that fits, which I can rename.
+- **AC-32 (ASSOC-5):** It works offline: the topic is created on the device, the indicator shows "Saved on this device", and it syncs when I reconnect.
+- **AC-33 (ASSOC-5):** Moving the new topic to Trash removes the link from the association, and restoring it brings the link back. Deleting the association leaves the topic intact and removes its "From" line.
+- **AC-34 (ASSOC-5, security):** A topic can only link to an association owned by the same user (pgTAP).
 
 **Cross-cutting (every phase)**
 - **AC-X1:** axe reports no serious or critical violations on new screens.
