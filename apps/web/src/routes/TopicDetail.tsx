@@ -1,11 +1,11 @@
 import { LIMITS } from '@jokeshovel/shared';
-import { NavLink, Outlet, useNavigate, useParams } from 'react-router';
+import { Link, NavLink, Outlet, useNavigate, useParams } from 'react-router';
 import { AutosaveField } from '../components/AutosaveField';
 import { StatChips } from '../components/StatChips';
 import { TagEditor } from '../components/TagEditor';
 import { ToggleButton } from '../components/ToggleButton';
 import { useToast } from '../components/Toasts';
-import { useAssociations, useMutations, useSetups, useTopic, useTopicSummaries } from '../data/hooks';
+import { useAssociation, useAssociations, useMutations, useSetups, useTopic, useTopicSummaries } from '../data/hooks';
 import { useTagActions, useTags } from '../data/tags';
 import { useRememberLocation } from '../data/useRememberLocation';
 
@@ -89,6 +89,7 @@ export function TopicDetail() {
           className="topic-head__title"
           validate={(v) => (v.trim() ? null : 'A topic needs a title.')}
         />
+        {topic.source_association_id ? <TopicOrigin associationId={topic.source_association_id} /> : null}
         <AutosaveField
           table="topics"
           rowId={topic.id}
@@ -133,7 +134,30 @@ export function TopicDetail() {
         </NavLink>
       </nav>
 
-      <Outlet />
+      {/* Keyed so moving between topics starts each tab fresh (empty input, focus). */}
+      <Outlet key={topic.id} />
     </div>
+  );
+}
+
+/**
+ * "Made from “TSA” in Airports" on a topic made from an association (ASSOC-5).
+ * Hidden once that association or its topic is deleted.
+ */
+function TopicOrigin({ associationId }: { associationId: string }) {
+  const { association } = useAssociation(associationId);
+  return association ? <OriginLink topicId={association.topic_id} text={association.text} /> : null;
+}
+
+function OriginLink({ topicId, text }: { topicId: string; text: string }) {
+  const { topic } = useTopic(topicId);
+  if (!topic) return null;
+  return (
+    <p className="topic-head__origin">
+      Made from{' '}
+      <Link to={`/topics/${topic.id}/associations`}>
+        “{text}” in {topic.title || 'Untitled topic'}
+      </Link>
+    </p>
   );
 }

@@ -688,6 +688,7 @@ export type Database = {
           is_favorite: boolean;
           last_activity_at: string;
           notes: string;
+          source_association_id: string | null;
           status: Database['public']['Enums']['topic_status'];
           title: string;
           updated_at: string;
@@ -703,6 +704,7 @@ export type Database = {
           is_favorite?: boolean;
           last_activity_at?: string;
           notes?: string;
+          source_association_id?: string | null;
           status?: Database['public']['Enums']['topic_status'];
           title: string;
           updated_at?: string;
@@ -717,12 +719,21 @@ export type Database = {
           is_favorite?: boolean;
           last_activity_at?: string;
           notes?: string;
+          source_association_id?: string | null;
           status?: Database['public']['Enums']['topic_status'];
           title?: string;
           updated_at?: string;
           user_id?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'topics_source_association_fkey';
+            columns: ['source_association_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'associations';
+            referencedColumns: ['id', 'user_id'];
+          },
+        ];
       };
     };
     Views: {

@@ -33,6 +33,7 @@ Setup, deploys, rollback, restores and troubleshooting are in [`docs/RUNBOOK.md`
 - **Phase 3, completed jokes:** a Review step that turns an attempt into a joke with a suggested title, an editable joke card with favorites and ratings, a Jokes tab with filters, typo-tolerant search across everything, and a Stats page with completion %, weekly charts and stuck drafts.
 - **Phase 4, publishing:** a Publish sheet with a predictable note title (`Topic — Keywords — Joke`, keyword chips, editable), optional "how I dug it" sections and a live preview; **Share to Keep** on phones and **Copy & open Keep** everywhere, with a "Did it save?" check, a publish history, and Keep counts on topics and Stats. An optional Google Docs "Joke Book" is built but off by default.
 - **Phase 5, workflow:** a ⌘K quick switcher, keyboard shortcuts with `?` help, tags on jokes and topics, branching and duplicating setups, a 30-day Trash, Markdown and JSON export, account deletion, Expert mode, a theme choice, swipe actions on phones, and an installable app that opens offline.
+- **ASSOC-5, association → topic:** a ⤴ button on any association turns it into its own topic, ready to brainstorm. The association stays where it was, and each links to the other.
 
 Next: the future ideas in `docs/DESIGN.md` §20.
 
@@ -64,7 +65,7 @@ Full instructions, production setup, deploys, rollback and backups: [`docs/RUNBO
 
 - [`docs/DESIGN.md`](docs/DESIGN.md): product, UX, data model, auth, Keep publishing, architecture, phases, user stories
 - [`docs/RUNBOOK.md`](docs/RUNBOOK.md): running, deploying, restoring
-- [`docs/sprint-1-review.md`](docs/sprint-1-review.md), [`docs/phase-2-review.md`](docs/phase-2-review.md), [`docs/phase-3-review.md`](docs/phase-3-review.md), [`docs/phase-4-review.md`](docs/phase-4-review.md), [`docs/phase-5-review.md`](docs/phase-5-review.md): what each phase delivered
+- [`docs/sprint-1-review.md`](docs/sprint-1-review.md), [`docs/phase-2-review.md`](docs/phase-2-review.md), [`docs/phase-3-review.md`](docs/phase-3-review.md), [`docs/phase-4-review.md`](docs/phase-4-review.md), [`docs/phase-5-review.md`](docs/phase-5-review.md), [`docs/assoc-5-review.md`](docs/assoc-5-review.md): what each phase or story delivered
 
 ## Stack
 
