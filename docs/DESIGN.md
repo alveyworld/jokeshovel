@@ -1191,6 +1191,7 @@ See §20. **Built:** ASSOC-5, turning an association into its own topic (`docs/a
 | COMP-1 | M | 3 | As a comedian, I want to review my setup and punch together and mark the joke complete, so that it joins my collection. |
 | COMP-2 | M | 3 | As a comedian, I want to edit a completed joke's wording, so that I can polish it after trying it on stage. |
 | COMP-3 | S | 3 | As a comedian, I want to favorite and rate jokes, so that my best material is easy to find. |
+| COMP-4 | S | 6 | As a comedian, I want my completed jokes to look like the 3×5 index cards I keep my material on, so that my collection feels like my joke file and finished jokes stand out from work in progress. |
 | **Searching and filtering** ||||
 | SRCH-1 | M | 3 | As an experienced comedian, I want to search all my material by keyword, so that I can find that dentist bit from last spring. |
 | SRCH-2 | S | 3 | As an organizer, I want to filter by status, topic, tag, and favorite, so that I can build a set list. |
@@ -1267,6 +1268,13 @@ Given/When/Then, grouped by phase. IDs are referenced in §13.
 - **AC-32 (ASSOC-5):** It works offline: the topic is created on the device, the indicator shows "Saved on this device", and it syncs when I reconnect.
 - **AC-33 (ASSOC-5):** Moving the new topic to Trash removes the link from the association, and restoring it brings the link back. Deleting the association leaves the topic intact and removes its "From" line.
 - **AC-34 (ASSOC-5, security):** A topic can only link to an association owned by the same user (pgTAP).
+- **AC-35 (COMP-4):** On the Jokes tab and a topic's Jokes tab, each completed joke is a white 3×5 index card on the yellow legal pad: the title sits above a red header line near the top, and the setup and punch sit on evenly spaced light-blue rules below it. The card has a thin edge and a soft shadow, like the reference photo. Cards are never shorter than 3:5 (height to width) and grow taller rather than cut off text.
+- **AC-36 (COMP-4):** The joke page shows the joke as one larger index card with the title on the header line and the setup, then the punch, on the rules. Editing the title, setup or punch happens on the card, and the text stays on the lines while I type. Rating, tags, notes and publish history stay below the card.
+- **AC-37 (COMP-4):** The rules are spaced to the text's line height, so wrapped lines, 200–400% zoom and larger text settings keep every line of text on a rule (A11Y-3). No text is clipped.
+- **AC-38 (COMP-4):** Favorite, rating, tags, "Archived" and "In Keep" stay visible on list cards, below the last line of the joke.
+- **AC-39 (COMP-4):** In the dark theme the card is a dimmed card stock with fainter rules, not a bright white rectangle, and text still meets 4.5:1 contrast.
+- **AC-40 (COMP-4):** The rules and red line are decoration only: screen readers hear the title, setup and punch as before, and in forced-colors (high contrast) mode the card's edge and text stay visible. axe passes (AC-X1) and there's no horizontal scroll at 320 px (AC-X3).
+- **AC-41 (COMP-4):** Only completed jokes use the index card. Topics, setups and drafts keep the legal-pad look, so finished material is easy to tell apart from work in progress.
 
 **Cross-cutting (every phase)**
 - **AC-X1:** axe reports no serious or critical violations on new screens.
