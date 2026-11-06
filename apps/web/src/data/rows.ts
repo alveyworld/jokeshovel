@@ -40,6 +40,7 @@ export function newTopicRow(op: PendingOp, userId: string): Topic {
     updated_at: op.queuedAt,
     archived_at: null,
     deleted_at: null,
+    source_association_id: null,
     ...op.values,
   } as Topic;
 }

@@ -28,6 +28,7 @@ function fixture(): RawExportData {
         is_favorite: false,
         archived_at: null,
         last_activity_at: T,
+        source_association_id: null,
       },
       {
         ...base,
@@ -39,6 +40,7 @@ function fixture(): RawExportData {
         is_favorite: false,
         archived_at: null,
         last_activity_at: T,
+        source_association_id: null,
         deleted_at: T,
       },
     ],

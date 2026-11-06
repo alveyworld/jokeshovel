@@ -273,6 +273,28 @@ textarea[aria-invalid='true'] {
 .icon-btn--danger:hover {
   color: var(--danger);
 }
+/* ASSOC-5: association rows have a fourth action ("Make it a topic"). A
+   narrower button, tighter spacing and a smaller minimum field keep the row on
+   one line on phones 360px and wider, as it was with three actions. */
+.icon-btn--narrow {
+  width: 36px;
+}
+.item--association .item__actions {
+  gap: 2px;
+}
+@media (max-width: 479px) {
+  .item--association .item__field {
+    flex-basis: 7rem;
+  }
+}
+/* ASSOC-5: an association that became a topic links to it. */
+.icon-btn--linked {
+  color: var(--accent);
+  text-decoration: none;
+}
+.icon-btn--linked:hover {
+  color: var(--accent-hover);
+}
 
 .button-row {
   display: flex;
@@ -665,6 +687,13 @@ textarea[aria-invalid='true'] {
 }
 .topic-head__title input:hover {
   border-color: var(--border-soft);
+}
+/* ASSOC-5: where a topic made from an association came from. */
+.topic-head__origin {
+  margin: calc(-1 * var(--space-2)) 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
 }
 .topic-head__meta {
   display: flex;

@@ -506,13 +506,14 @@ auth.users 1─0..1 google_connections   (server-only)
 | is_favorite | bool | |
 | last_activity_at | timestamptz | bumped by child triggers |
 | created_at, updated_at, archived_at, deleted_at | timestamptz | |
+| source_association_id | uuid null | ASSOC-5: the association this topic was made from. FK `(source_association_id, user_id)` → associations, on delete set null. At most one live topic per association (partial unique index); a second one keeps its row and drops the link. |
 
 Index: `(user_id, status, last_activity_at desc) where deleted_at is null`.
 
 #### `associations` ✅
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid PK | |
+| id | uuid PK | `unique (id, user_id)` (ASSOC-5) |
 | user_id, topic_id | uuid | FK `(topic_id, user_id)` → topics, cascade |
 | text | text 1–200 | |
 | sort_order | float8 | |
@@ -1123,7 +1124,7 @@ Each phase ends with something deployed and usable. Sprints are 2 weeks for one 
 - **Risks:** shortcut conflicts with screen readers. Mitigate with the WCAG 2.1.4 rules above.
 
 ### Phase 6 — Future enhancements
-See §20.
+See §20. **Built:** ASSOC-5, turning an association into its own topic (`docs/assoc-5-review.md`).
 
 ---
 
@@ -1260,7 +1261,7 @@ Given/When/Then, grouped by phase. IDs are referenced in §13.
 
 **Phase 6**
 - **AC-28 (ASSOC-5):** *Given* the topic "Airports" has the association "TSA", *when* I tap **Make it a topic** on that row, *then* a new active topic titled "TSA" is created, I land on its Associations screen with the input focused, and Back returns me to the Airports associations. The new topic starts empty: no description, tags or associations are copied.
-- **AC-29 (ASSOC-5):** "TSA" stays in the Airports list and the Airports association count doesn't change. Its row shows a link to the new topic, and the new topic shows "From Airports › TSA", linking back.
+- **AC-29 (ASSOC-5):** "TSA" stays in the Airports list and the Airports association count doesn't change. Its row shows a link to the new topic, and the new topic shows "Made from “TSA” in Airports", linking back.
 - **AC-30 (ASSOC-5):** Tapping **Make it a topic** again on the same association opens the existing topic instead of making another. A double tap or a retry after a lost connection creates exactly one topic.
 - **AC-31 (ASSOC-5):** If I already have an active topic with the same title (ignoring case), I'm asked whether to open it or create another. An association longer than 120 characters (the topic title limit) becomes a title cut at the last whole word that fits, which I can rename.
 - **AC-32 (ASSOC-5):** It works offline: the topic is created on the device, the indicator shows "Saved on this device", and it syncs when I reconnect.

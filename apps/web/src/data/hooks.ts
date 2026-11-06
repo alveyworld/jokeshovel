@@ -125,6 +125,49 @@ export function useAssociations(topicId: string) {
   return { ...query, associations };
 }
 
+/** One association, e.g. the one a topic was made from (null once deleted). */
+export function useAssociation(associationId: string) {
+  const user = useUser();
+  const pending = usePending();
+  const query = useQuery({
+    // Under 'associations' so saving any association refreshes it.
+    queryKey: ['associations', 'one', associationId],
+    queryFn: async () => unwrap(await supabase.from('associations').select('*').eq('id', associationId).maybeSingle()),
+  });
+  const association = useMemo(() => {
+    const [row] = overlay(query.data ? [query.data] : [], pending, 'associations', (op) =>
+      op.id === associationId ? newAssociationRow(op, user.id) : null,
+    );
+    return row && isLive(row) ? (row as Association) : null;
+  }, [query.data, pending, associationId, user.id]);
+  return { ...query, association };
+}
+
+/**
+ * Live topics that were made from an association (ASSOC-5), keyed by that
+ * association, so its row can link to the topic.
+ */
+export function useTopicsFromAssociations() {
+  const user = useUser();
+  const pending = usePending();
+  const query = useQuery({
+    queryKey: ['topics', 'from-associations'],
+    queryFn: async () =>
+      unwrap(await supabase.from('topics').select('*').not('source_association_id', 'is', null)) as Topic[],
+  });
+  const byAssociation = useMemo(() => {
+    const map = new Map<string, Topic>();
+    const rows = overlay(query.data, pending, 'topics', (op) =>
+      op.values.source_association_id ? newTopicRow(op, user.id) : null,
+    );
+    for (const topic of rows) {
+      if (isLive(topic) && topic.source_association_id) map.set(topic.source_association_id, topic);
+    }
+    return map;
+  }, [query.data, pending, user.id]);
+  return { ...query, byAssociation };
+}
+
 export function useSetups(topicId: string) {
   const user = useUser();
   const pending = usePending();
@@ -396,6 +439,16 @@ export function useMutations() {
       createTopic(title: string) {
         const id = crypto.randomUUID();
         box.insert('topics', id, { title: title.trim() });
+        return id;
+      },
+      /**
+       * A new topic made from an association (ASSOC-5). The association's own
+       * creation is already queued ahead of this, so the link is always valid.
+       */
+      createTopicFromAssociation(associationId: string, title: string) {
+        const id = crypto.randomUUID();
+        box.insert('topics', id, { title: title.trim(), source_association_id: associationId });
+        box.flushSoon();
         return id;
       },
       createAssociation(topicId: string, text: string, existing: readonly Association[]) {
