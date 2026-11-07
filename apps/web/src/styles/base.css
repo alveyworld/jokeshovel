@@ -155,8 +155,13 @@ select {
   border: 1px solid var(--border);
   border-radius: var(--radius-small);
 }
+/* Text boxes grow with their text, so all of it shows on phones too (they
+   can't drag the corner). Their `rows` (as --rows) is the smallest height.
+   Browsers without field-sizing get the same from lib/autoGrow.ts. */
 textarea {
-  resize: vertical;
+  resize: none;
+  field-sizing: content;
+  min-height: calc(var(--rows, 2) * 1lh + 2 * var(--space-2) + 2px);
 }
 input[aria-invalid='true'],
 textarea[aria-invalid='true'] {
@@ -2252,9 +2257,8 @@ kbd {
   background: transparent;
   border: 0;
   border-radius: 0;
-  resize: none;
-  /* Grow with the text so every line stays on a rule. */
-  field-sizing: content;
+  /* Grows with the text a whole line at a time (see the textarea rule above),
+     so every line stays on a rule. */
 }
 .index-card__title-field input[aria-invalid='true'],
 .index-card__field textarea[aria-invalid='true'] {
@@ -2265,18 +2269,6 @@ kbd {
 .index-card__field .field__hint {
   line-height: var(--card-line);
 }
-/* Without field-sizing, the textarea keeps its rows and scrolls, so it
-   carries its own rules that scroll with the text. */
-@supports not (field-sizing: content) {
-  .index-card__field textarea {
-    background-color: var(--card-stock);
-    background-image: linear-gradient(to bottom, transparent calc(100% - 1px), var(--card-rule) calc(100% - 1px));
-    background-size: 100% var(--card-line);
-    background-position: 0 calc(-1 * var(--card-lift));
-    background-attachment: local;
-  }
-}
-
 /* Lists of cards: as many 19rem-wide cards per row as fit. */
 .card-list--index {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
