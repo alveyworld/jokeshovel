@@ -60,6 +60,16 @@
   --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Alfa Slab One', Rockwell, 'Roboto Slab', Georgia, serif;
   --shadow: 0 1px 0 rgb(0 0 0 / 0.06), 0 2px 6px rgb(60 50 0 / 0.1);
+
+  /* Completed jokes are 3×5 index cards (COMP-4): white stock, a red header
+     line and light-blue rules. Text on the card uses --text and --muted,
+     which meet 4.5:1 on --card-stock in both themes. */
+  --card-stock: #fffffd;
+  --card-edge: #c6c2b4;
+  --card-red: #d4524c;
+  --card-rule: rgb(84 136 196 / 0.55);
+  --card-shadow: 0 1px 2px rgb(0 0 0 / 0.14), 0 4px 10px rgb(60 50 0 / 0.1);
+  --card-shadow-hover: 0 2px 4px rgb(0 0 0 / 0.16), 0 8px 18px rgb(60 50 0 / 0.14);
 }
 
 @media (min-width: 640px) {
@@ -102,6 +112,13 @@
     --chart-1-hover: #bd6823; /* the light step is out of band on the dark surface */
     --chart-grid: #45412f;
     --shadow: none;
+    /* A dimmed card rather than a bright white one. */
+    --card-stock: #2e2c24;
+    --card-edge: #57523f;
+    --card-red: #9a4446;
+    --card-rule: rgb(120 160 214 / 0.28);
+    --card-shadow: none;
+    --card-shadow-hover: 0 0 0 1px var(--border);
   }
 }
 
@@ -135,4 +152,10 @@
   --chart-1-hover: #bd6823; /* the light step is out of band on the dark surface */
   --chart-grid: #45412f;
   --shadow: none;
+  --card-stock: #2e2c24;
+  --card-edge: #57523f;
+  --card-red: #9a4446;
+  --card-rule: rgb(120 160 214 / 0.28);
+  --card-shadow: none;
+  --card-shadow-hover: 0 0 0 1px var(--border);
 }

@@ -127,7 +127,10 @@ export function Jokes() {
       ) : isPending ? (
         <p role="status">Loading…</p>
       ) : shown.length ? (
-        <ul className="card-list" aria-label={`${shown.length} ${shown.length === 1 ? 'joke' : 'jokes'}`}>
+        <ul
+          className="card-list card-list--index"
+          aria-label={`${shown.length} ${shown.length === 1 ? 'joke' : 'jokes'}`}
+        >
           {shown.map((j) => (
             <li key={j.id}>
               <JokeCard
