@@ -67,17 +67,53 @@ function JokeDetailBody({ joke }: { joke: Joke }) {
         <span aria-current="page">{joke.title || 'Untitled joke'}</span>
       </nav>
 
-      <AutosaveField
-        table="jokes"
-        rowId={joke.id}
-        field="title"
-        value={joke.title}
-        label="Title"
-        hideLabel
-        maxLength={LIMITS.jokeTitle}
-        placeholder="Name this joke"
-        className="topic-head__title"
-      />
+      {/* COMP-4: the joke as a 3×5 index card, edited in place. */}
+      <section className="index-card index-card--large" aria-label="The joke">
+        <div className="index-card__head">
+          <AutosaveField
+            table="jokes"
+            rowId={joke.id}
+            field="title"
+            value={joke.title}
+            label="Title"
+            hideLabel
+            maxLength={LIMITS.jokeTitle}
+            placeholder="Name this joke"
+            className="index-card__title-field"
+          />
+        </div>
+        <div className="index-card__lines">
+          <AutosaveField
+            table="jokes"
+            rowId={joke.id}
+            field="setup_text"
+            value={joke.setup_text}
+            label="Setup"
+            hideLabel
+            placeholder="Setup"
+            multiline
+            rows={2}
+            maxLength={LIMITS.setup}
+            validate={required('setup')}
+            className="index-card__field"
+          />
+          <AutosaveField
+            table="jokes"
+            rowId={joke.id}
+            field="punch_text"
+            value={joke.punch_text}
+            label="Punch"
+            hideLabel
+            placeholder="Punch"
+            multiline
+            rows={2}
+            maxLength={LIMITS.punch}
+            validate={required('punch')}
+            className="index-card__field index-card__punch"
+          />
+        </div>
+      </section>
+
       <p className="card__meta">
         {topic ? <Link to={`/topics/${topic.id}`}>{topic.title}</Link> : null} · Completed{' '}
         {new Date(joke.completed_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
@@ -98,32 +134,6 @@ function JokeDetailBody({ joke }: { joke: Joke }) {
       {publishing ? (
         <PublishSheet joke={joke} topicTitle={topic?.title ?? ''} onClose={() => setPublishing(false)} />
       ) : null}
-
-      <section className="joke-card joke-card--edit" aria-label="The joke">
-        <AutosaveField
-          table="jokes"
-          rowId={joke.id}
-          field="setup_text"
-          value={joke.setup_text}
-          label="Setup"
-          multiline
-          rows={2}
-          maxLength={LIMITS.setup}
-          validate={required('setup')}
-        />
-        <AutosaveField
-          table="jokes"
-          rowId={joke.id}
-          field="punch_text"
-          value={joke.punch_text}
-          label="Punch"
-          multiline
-          rows={2}
-          maxLength={LIMITS.punch}
-          validate={required('punch')}
-          className="joke-card__punch"
-        />
-      </section>
 
       <div className="joke-tools">
         <ToggleButton

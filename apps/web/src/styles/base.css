@@ -1261,10 +1261,6 @@ details[open] > summary::before {
   margin-top: var(--space-3);
   font-weight: 700;
 }
-.joke-card--edit {
-  display: grid;
-  gap: var(--space-3);
-}
 .dig-path {
   display: grid;
   grid-template-columns: minmax(0, auto) minmax(0, 1fr);
@@ -1297,11 +1293,7 @@ details[open] > summary::before {
   align-items: flex-end;
   gap: var(--space-4);
 }
-.joke-row__punch {
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-.joke-row__fav {
+.index-card__fav {
   color: var(--danger);
 }
 
@@ -2132,5 +2124,171 @@ kbd {
   /* Keep focused fields clear of the sticky footer too (WCAG 2.4.11). */
   html:has(.mine-footer) {
     scroll-padding-bottom: 160px;
+  }
+}
+
+/* ---------- Index cards (COMP-4) ----------
+   Completed jokes are 3×5 index cards on the legal pad: the title above a red
+   header line, the setup and punch on light-blue rules. Rule spacing is in rem
+   and every line box on the card uses it, so text stays on the rules through
+   wrapping, zoom and larger text settings. --card-lift raises the rules from
+   the bottom of each line box to just under the text's baseline. */
+.index-card {
+  --card-line: 1.75rem;
+  --card-lift: 0.32rem;
+  display: flex;
+  flex-direction: column;
+  /* Never shorter than a 3×5 card; taller when the joke needs it. */
+  aspect-ratio: 5 / 3;
+  min-width: 0;
+  color: var(--text);
+  background-color: var(--card-stock);
+  border: 1px solid var(--card-edge);
+  border-radius: 3px;
+  box-shadow: var(--card-shadow);
+}
+.index-card--link {
+  text-decoration: none;
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+.index-card--link:hover {
+  color: var(--text);
+  border-color: var(--border);
+  box-shadow: var(--card-shadow-hover);
+}
+.index-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 var(--space-3);
+  min-height: calc(var(--card-line) * 1.3);
+  padding: var(--space-2) var(--space-4) 0.25rem;
+  border-bottom: 2px solid var(--card-red);
+}
+.index-card__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.index-card__topic {
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.index-card__lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--space-4);
+  line-height: var(--card-line);
+  overflow-wrap: anywhere;
+  background-image: linear-gradient(to bottom, transparent calc(100% - 1px), var(--card-rule) calc(100% - 1px));
+  background-size: 100% var(--card-line);
+  background-position: 0 calc(-1 * var(--card-lift));
+}
+.index-card__lines > * {
+  line-height: var(--card-line);
+}
+.index-card__punch,
+.index-card__punch textarea {
+  font-weight: 700;
+}
+.index-card__tags {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+.index-card__meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+/* A badge is taller than its text; keep it inside the line so the rules hold. */
+.index-card .badge {
+  line-height: 1.2;
+}
+
+/* The joke page: one larger card, edited in place. */
+.index-card--large {
+  --card-line: 2rem;
+  --card-lift: 0.4rem;
+  max-width: 44rem;
+  font-size: 1.1rem;
+}
+.index-card--large .index-card__head {
+  padding-top: var(--space-3);
+}
+.index-card__title-field {
+  flex: 1;
+  display: block;
+  min-width: 0;
+}
+.index-card__title-field input {
+  min-height: 0;
+  padding: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+.index-card__field {
+  display: block;
+}
+.index-card__field textarea {
+  display: block;
+  min-height: var(--card-line);
+  padding: 0;
+  font: inherit;
+  line-height: var(--card-line);
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  resize: none;
+  /* Grow with the text so every line stays on a rule. */
+  field-sizing: content;
+}
+.index-card__title-field input[aria-invalid='true'],
+.index-card__field textarea[aria-invalid='true'] {
+  border: 0;
+  box-shadow: inset 0 -2px 0 var(--danger);
+}
+.index-card__field .field__error,
+.index-card__field .field__hint {
+  line-height: var(--card-line);
+}
+/* Without field-sizing, the textarea keeps its rows and scrolls, so it
+   carries its own rules that scroll with the text. */
+@supports not (field-sizing: content) {
+  .index-card__field textarea {
+    background-color: var(--card-stock);
+    background-image: linear-gradient(to bottom, transparent calc(100% - 1px), var(--card-rule) calc(100% - 1px));
+    background-size: 100% var(--card-line);
+    background-position: 0 calc(-1 * var(--card-lift));
+    background-attachment: local;
+  }
+}
+
+/* Lists of cards: as many 19rem-wide cards per row as fit. */
+.card-list--index {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: var(--space-4);
+}
+
+/* High contrast: the rules and shadow go, the edge and red line stay. */
+@media (forced-colors: active) {
+  .index-card {
+    border-color: CanvasText;
+  }
+  .index-card__head {
+    border-bottom-color: CanvasText;
   }
 }

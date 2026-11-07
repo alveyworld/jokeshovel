@@ -18,7 +18,10 @@ export function TopicJokes() {
       {isPending ? (
         <p role="status">Loading…</p>
       ) : live.length ? (
-        <ul className="card-list" aria-label={`${live.length} ${live.length === 1 ? 'joke' : 'jokes'}`}>
+        <ul
+          className="card-list card-list--index"
+          aria-label={`${live.length} ${live.length === 1 ? 'joke' : 'jokes'}`}
+        >
           {live.map((j) => (
             <li key={j.id}>
               <JokeCard joke={j} />

@@ -1124,7 +1124,7 @@ Each phase ends with something deployed and usable. Sprints are 2 weeks for one 
 - **Risks:** shortcut conflicts with screen readers. Mitigate with the WCAG 2.1.4 rules above.
 
 ### Phase 6 — Future enhancements
-See §20. **Built:** ASSOC-5, turning an association into its own topic (`docs/assoc-5-review.md`).
+See §20. **Built:** ASSOC-5, turning an association into its own topic (`docs/assoc-5-review.md`); COMP-4, completed jokes as 3×5 index cards (`docs/comp-4-review.md`).
 
 ---
 
